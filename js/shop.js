@@ -24,7 +24,7 @@
     if (state.q) p.set("q", state.q);
     if (state.offers) p.set("filter", "sale");
     else if (state.fresh) p.set("filter", "new");
-    history.replaceState(null, "", location.pathname + (p.toString() ? "?" + p : ""));
+    try { history.replaceState(null, "", location.pathname + (p.toString() ? "?" + p : "")); } catch (e) { /* not allowed in some embedded previews */ }
   };
 
   const renderFilters = () => {
