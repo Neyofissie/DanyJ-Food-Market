@@ -781,3 +781,40 @@ p { margin: 0; }
 .thumb .cat-ico { display: grid; place-items: center; width: 62%; height: 62%; filter: drop-shadow(0 8px 10px rgba(31, 42, 34, .12)); }
 .thumb .cat-ico svg { width: 100%; height: 100%; display: block; }
 .chips .chip { padding-left: 12px; }
+
+/* ---------- Phones: one horizontal card per product ---------- */
+@media (max-width: 640px) {
+  .product-grid, .product-grid.cols-3 { grid-template-columns: 1fr; gap: 10px; }
+  .row-scroll .track { grid-auto-columns: 88%; }
+
+  .card {
+    display: grid; grid-template-columns: 108px minmax(0, 1fr);
+    grid-template-areas: "media body" "media foot";
+    column-gap: 14px; row-gap: 4px; align-items: start;
+    padding: 10px; border-radius: 18px;
+  }
+  .card .media { grid-area: media; width: 108px; height: 108px; aspect-ratio: 1; border-radius: 14px; font-size: 46px; align-self: center; }
+  .card .media img { padding: 4px; }
+  .card-body { grid-area: body; padding: 2px 2px 0 0; gap: 0; }
+  .card-cat { font-size: 11px; margin-bottom: 2px; }
+  .card h3 { font-size: 15px; min-height: 0; -webkit-line-clamp: 2; }
+  .card .price-row { margin-top: 4px; }
+  .card .price { font-size: 17px; }
+  .card-foot { grid-area: foot; padding: 0; align-self: end; }
+  .card .stock { font-size: 11px; padding: 3px 8px; }
+
+  .card-badge { top: 6px; left: 6px; padding: 3px 7px; font-size: 10.5px; }
+  .card-badge svg { width: 10px; height: 10px; }
+  .fav-btn { top: 6px; right: 6px; width: 28px; height: 28px; }
+  .fav-btn svg { width: 14px; height: 14px; }
+  .card .add-btn { width: 40px; height: 40px; }
+  .card .stepper { height: 40px; }
+  .card .stepper button { width: 36px; height: 40px; }
+}
+@media (max-width: 640px) {
+  .season-grid { grid-template-columns: 1fr; gap: 8px; }
+  .season-tile { display: grid; grid-template-columns: 72px minmax(0, 1fr); align-items: center; border-radius: 16px; }
+  .season-tile .thumb { aspect-ratio: 1; width: 72px; height: 72px; font-size: 34px; }
+  .season-tile div:last-child { padding: 10px 14px; }
+  .season-tile b { font-size: 14.5px; }
+}
