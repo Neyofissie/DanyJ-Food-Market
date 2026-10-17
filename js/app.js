@@ -1,8 +1,8 @@
-/* Farm Link Food Market — shared app logic (header, footer, cart, product cards) */
+/* DanyJ Food Market — shared app logic (header, footer, cart, product cards) */
 (function () {
   "use strict";
 
-  const D = window.FARMLINK;
+  const D = window.DANYJ;
   const S = D.store;
 
   /* ---------- Icons (Lucide-style, inline) ---------- */
@@ -57,8 +57,8 @@
   const initials = (name) => name.split(/\s+/).map((w) => w[0]).slice(0, 2).join("").toUpperCase();
 
   const store = {
-    get(key, fallback) { try { const v = localStorage.getItem("farmlink:" + key); return v ? JSON.parse(v) : fallback; } catch (e) { return fallback; } },
-    set(key, value) { try { localStorage.setItem("farmlink:" + key, JSON.stringify(value)); } catch (e) { /* storage unavailable */ } },
+    get(key, fallback) { try { const v = localStorage.getItem("danyj:" + key); return v ? JSON.parse(v) : fallback; } catch (e) { return fallback; } },
+    set(key, value) { try { localStorage.setItem("danyj:" + key, JSON.stringify(value)); } catch (e) { /* storage unavailable */ } },
   };
 
   const byId = {};

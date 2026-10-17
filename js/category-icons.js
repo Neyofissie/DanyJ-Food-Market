@@ -1,4 +1,4 @@
-/* Farm Link Food Market — illustrated category icons
+/* DanyJ Food Market — illustrated category icons
  * One flat illustration per category, drawn from the products in the shop:
  * a rice sack, a bowl of poundo, fish and drumstick, a scotch bonnet, a palm oil
  * jerrycan, a malt bottle, a jar of chin chin and wholesale boxes.
@@ -95,5 +95,5 @@
   };
 
   window.FL_CAT_ICONS = icons;
-  if (window.FARMLINK) window.FARMLINK.categories.forEach((c) => { c.svg = icons[c.id]; });
+  if (window.DANYJ) window.DANYJ.categories.forEach((c) => { c.svg = icons[c.id]; });
 })();

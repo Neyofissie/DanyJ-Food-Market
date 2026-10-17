@@ -1,5 +1,5 @@
 /*
- * Farm Link Food Market — catalogue data
+ * DanyJ Food Market — catalogue data
  * ------------------------------------------------------------
  * This is the ONLY file you need to edit to change products, prices,
  * categories, recipes or store details.
@@ -17,8 +17,8 @@
   const slug = (s) => s.toLowerCase().replace(/&/g, "and").replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "");
 
   const store = {
-    name: "Farm Link",
-    fullName: "Farm Link Food Market",
+    name: "DanyJ",
+    fullName: "DanyJ Food Market",
     company: "88 African Foods & Grocery Ltd",
     tagline: "A taste of home in every basket",
     strap: "African & Caribbean groceries",
@@ -283,5 +283,5 @@
       items: ["Goat Meat With Bone", "Scotch Bonnet (Ata Rodo)", "Fresh Bell Pepper (Tatashe)", "Red Onions", "Maggi Star Seasoning Cubes 400g", "Rajah Curry Powder 100g"] },
   ].map((r) => ({ ...r, emoji: r.e, items: r.items.map(slug) }));
 
-  window.FARMLINK = { store, categories, products, recipes, slug };
+  window.DANYJ = { store, categories, products, recipes, slug };
 })();

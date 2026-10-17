@@ -1,4 +1,4 @@
-/* Farm Link Food Market — shop page */
+/* DanyJ Food Market — shop page */
 (function () {
   "use strict";
   const { D, categoryById, catIcon, productCard, icon, esc, store, refreshControls, openPanel, $ } = window.FL;

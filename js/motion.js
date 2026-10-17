@@ -1,4 +1,4 @@
-/* Farm Link Food Market — micro-interactions
+/* DanyJ Food Market — micro-interactions
  * Fly-to-basket, rolling quantities, heart bursts, card tilt, drag-to-scroll
  * carousels, basket drawer motion, free-delivery confetti, scroll reveals and
  * a typing search hint. Everything is skipped or simplified for people who

@@ -1,4 +1,4 @@
-# Image prompts — Farm Link Food Market
+# Image prompts — DanyJ Food Market
 
 > **Update:** real photos have since been uploaded for 187 of the 191 products. The product sections below are only needed for: Easy Cook Rice, Golden Morn 300g, Ground Egusi (Melon) and Agoyin Pepper Mix. The hero is done. The section images (story, wholesale, recipes) are still open.
 

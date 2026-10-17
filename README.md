@@ -1,6 +1,6 @@
-# Farm Link Food Market — website redesign
+# DanyJ Food Market — website
 
-A modern online storefront for Farm Link Food Market (a trading name of 88 African Foods & Grocery Ltd, Newcastle-under-Lyme): African and Caribbean groceries with free UK delivery over £60. It has a cream and green palette, a hand-drawn farm hero, rounded product cards and a slide-out basket.
+A modern online storefront for DanyJ Food Market (a trading name of 88 African Foods & Grocery Ltd, Newcastle-under-Lyme): African and Caribbean groceries with free UK delivery over £60. It has a cream and green palette, a hand-drawn farm hero, rounded product cards and a slide-out basket.
 
 It's a plain static site with no build step. Open `index.html` in a browser, or upload the folder to any static host (Netlify, Vercel, GitHub Pages, cPanel and so on).
 
@@ -42,7 +42,7 @@ It's a plain static site with no build step. Open `index.html` in a browser, or 
 
 **All products, prices, categories, recipes and store details are in `js/data.js`.** That is the only file you need to edit.
 
-The catalogue was transcribed from screenshots of the current farmlinkfoodmarket.co.uk shop. It has **191 products in 8 collections**: Grains & Legumes, Swallow, Fish Meat & Poultry, Fresh Veg & Fruits, Oils & Seasoning, Drinks & Beverages, Nigerian Snacks and Wholesale Box Deals. Prices, sale prices, "New in store" and "Customer favourites" all match the screenshots.
+The catalogue was transcribed from screenshots of the previous shop (farmlinkfoodmarket.co.uk). It has **191 products in 8 collections**: Grains & Legumes, Swallow, Fish Meat & Poultry, Fresh Veg & Fruits, Oils & Seasoning, Drinks & Beverages, Nigerian Snacks and Wholesale Box Deals. Prices, sale prices, "New in store" and "Customer favourites" all match the screenshots.
 
 A few products were left out because their price wasn't visible in the screenshots. Add them to `js/data.js` when you have the prices:
 
