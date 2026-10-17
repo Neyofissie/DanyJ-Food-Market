@@ -21,6 +21,14 @@ It's a plain static site with no build step. Open `index.html` in a browser, or 
   - On mobile, the filters open as a sheet that slides up from the bottom.
 - **Product view** (on every page): tap a product's photo or name for a larger view with quantity, savings, delivery info and "More from" the same category. A pop-up on desktop, a slide-up sheet on phones.
 - **Phones** use an app style: greeting, lime "Add" buttons, dark pill tabs, a dark basket strip and a lime tab-bar highlight.
+- **`account.html` (Account)**: reached from the person icon in the header, the Account tab on phones, and the basket's Checkout button.
+  - Create account / sign in.
+  - Overview: greeting, stats, live order tracker, basket preview, default address and "Buy again".
+  - Basket & checkout: edit quantities, pick a saved address and a delivery slot (next 5 days, morning / afternoon / evening, respecting the 11am cut-off), then place the order.
+  - My orders: status, tracking timeline, receipt, one-tap "Buy again" and cancel (while just placed).
+  - Favourites, an address book (add, edit, default, remove) and payment methods (placeholder until card payments are connected).
+  - Settings: profile, safe place and driver notes, notification switches, sign out.
+  - **Preview only:** accounts, orders and addresses are saved in the visitor's browser. Order progress is estimated from the time since ordering. Connect a real login, payment and order system before launch.
 - **Basket drawer** (on every page):
   - Quantity steppers
   - Free-delivery progress bar
@@ -77,18 +85,21 @@ The four recipes (Jollof Rice, Egusi Soup, Ewa Agoyin, Peppered Goat Meat) each 
 - **Delivery fee**: the basket shows "Calculated at checkout" under £60 and "Free" above it. Set the real fee when checkout is connected.
 - **Contact details**: add your email and phone number to `store` in `js/data.js` and they'll appear in the footer.
 - **Newsletter**: connect the form to Mailchimp, Klaviyo or similar.
-- **Account, FAQs, policies and social links**: these are currently `#` links.
+- **Accounts and orders**: replace the browser-only storage in `js/account.js` with a real login, payments and order system (e.g. Shopify customer accounts, Stripe + Supabase).
+- **FAQs, policies and social links**: these are currently `#` links.
 
 ## Structure
 
 ```
 index.html        Home page
 shop.html         Shop / catalogue page
+account.html      Customer account and checkout
 css/styles.css    All styling (design tokens at the top)
 js/data.js        Catalogue, recipes + store details  ← edit this
 js/app.js         Shared header, footer, basket, product cards
 js/home.js        Home page sections
 js/shop.js        Shop filters, search and sorting
+js/account.js     Account area: sign in, overview, checkout, orders, addresses, settings
 js/motion.js      Micro-interactions and animations
 js/category-icons.js  Illustrated icons for the 8 categories
 assets/img/products/  Product photos (WebP)

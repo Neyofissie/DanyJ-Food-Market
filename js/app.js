@@ -31,6 +31,12 @@
     star: '<path d="M12 2l3.1 6.3 6.9 1-5 4.9 1.2 6.8L12 17.8 5.8 21l1.2-6.8-5-4.9 6.9-1Z" fill="currentColor" stroke="none"/>',
     repeat: '<path d="m17 2 4 4-4 4"/><path d="M3 11v-1a4 4 0 0 1 4-4h14"/><path d="m7 22-4-4 4-4"/><path d="M21 13v1a4 4 0 0 1-4 4H3"/>',
     filter: '<path d="M22 3H2l8 9.5V19l4 2v-8.5Z"/>',
+    card: '<rect x="2" y="5" width="20" height="14" rx="2"/><path d="M2 10h20"/>',
+    gear: '<path d="M12.2 2h-.4a2 2 0 0 0-2 2v.2a2 2 0 0 1-1 1.7l-.4.3a2 2 0 0 1-2 0l-.2-.1a2 2 0 0 0-2.7.7l-.2.4a2 2 0 0 0 .7 2.7l.2.1a2 2 0 0 1 1 1.7v.5a2 2 0 0 1-1 1.7l-.2.1a2 2 0 0 0-.7 2.7l.2.4a2 2 0 0 0 2.7.7l.2-.1a2 2 0 0 1 2 0l.4.3a2 2 0 0 1 1 1.7v.2a2 2 0 0 0 2 2h.4a2 2 0 0 0 2-2v-.2a2 2 0 0 1 1-1.7l.4-.3a2 2 0 0 1 2 0l.2.1a2 2 0 0 0 2.7-.7l.2-.4a2 2 0 0 0-.7-2.7l-.2-.1a2 2 0 0 1-1-1.7v-.5a2 2 0 0 1 1-1.7l.2-.1a2 2 0 0 0 .7-2.7l-.2-.4a2 2 0 0 0-2.7-.7l-.2.1a2 2 0 0 1-2 0l-.4-.3a2 2 0 0 1-1-1.7V4a2 2 0 0 0-2-2Z"/><circle cx="12" cy="12" r="3"/>',
+    logout: '<path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><path d="m16 17 5-5-5-5"/><path d="M21 12H9"/>',
+    edit: '<path d="M12 20h9"/><path d="M16.4 3.6a2 2 0 0 1 3 3L7 19l-4 1 1-4Z"/>',
+    bell: '<path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9"/><path d="M10.3 21a1.9 1.9 0 0 0 3.4 0"/>',
+    receipt: '<path d="M4 2v20l2-1 2 1 2-1 2 1 2-1 2 1 2-1 2 1V2l-2 1-2-1-2 1-2-1-2 1-2-1-2 1Z"/><path d="M8 7h8M8 11h8M8 15h5"/>',
     home: '<path d="M3 10.5 12 3l9 7.5V20a1 1 0 0 1-1 1h-5v-6H9v6H4a1 1 0 0 1-1-1Z"/>',
     grid: '<rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/>',
     tag: '<path d="M12.6 2.6A2 2 0 0 0 11.2 2H4a2 2 0 0 0-2 2v7.2a2 2 0 0 0 .6 1.4l8.7 8.7a2.4 2.4 0 0 0 3.4 0l6.6-6.6a2.4 2.4 0 0 0 0-3.4Z"/><circle cx="7.5" cy="7.5" r="1.5" fill="currentColor"/>',
@@ -193,7 +199,7 @@
           <div class="header-actions">
             <a class="icon-btn" href="shop.html#search" aria-label="Search">${icon("search", 21)}</a>
             <button class="icon-btn" data-open-cart aria-label="Open basket">${icon("bag", 21)}<span class="badge-count" data-cart-count data-count="0">0</span></button>
-            <a class="icon-btn" href="#" aria-label="Account">${icon("user", 21)}</a>
+            <a class="icon-btn ${page === "account" ? "is-active" : ""}" href="account.html" aria-label="Your account">${icon("user", 21)}</a>
           </div>
         </div>
       </header>
@@ -249,7 +255,7 @@
         <a href="shop.html" class="${page === "shop" ? "active" : ""}">${icon("grid", 22)}<span>Shop</span></a>
         <a href="shop.html#search">${icon("search", 22)}<span>Search</span></a>
         <button data-open-cart aria-label="Open basket">${icon("bag", 22)}<span>Basket</span><span class="badge-count" data-cart-count data-count="0">0</span></button>
-        <a href="#contact">${icon("user", 22)}<span>Account</span></a>
+        <a href="account.html" class="${page === "account" ? "active" : ""}">${icon("user", 22)}<span>Account</span></a>
       </nav>
       <div class="overlay" id="overlay"></div>
       <section class="pd" id="pd" role="dialog" aria-modal="true" aria-label="Product details" aria-hidden="true">
@@ -376,7 +382,10 @@
       else if (t.hasAttribute("data-open-cart")) openPanel("cart");
       else if (t.hasAttribute("data-open-menu")) openPanel("mobile-nav");
       else if (t.hasAttribute("data-close") || t.id === "overlay") closePanels();
-      else if (t.hasAttribute("data-checkout")) toast("Checkout coming soon — connect your payment provider");
+      else if (t.hasAttribute("data-checkout")) {
+        if (document.body.dataset.page === "account") { closePanels(); location.hash = "basket"; }
+        else location.href = "account.html#basket";
+      }
     });
     document.addEventListener("keydown", (e) => { if (e.key === "Escape") closePanels(); });
     document.addEventListener("click", (e) => {
