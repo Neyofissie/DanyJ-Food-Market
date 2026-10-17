@@ -85,5 +85,6 @@ js/app.js         Shared header, footer, basket, product cards
 js/home.js        Home page sections
 js/shop.js        Shop filters, search and sorting
 js/motion.js      Micro-interactions and animations
+js/category-icons.js  Illustrated icons for the 8 categories
 assets/img/products/  Product photos (WebP)
 ```

@@ -53,6 +53,7 @@
   const $$ = (sel, root = document) => [...root.querySelectorAll(sel)];
   const money = (n) => new Intl.NumberFormat("en-GB", { style: "currency", currency: S.currency }).format(n);
   const esc = (s) => String(s).replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
+  const catIcon = (c) => (c.svg ? `<span class="chip-ico">${c.svg}</span>` : `<span class="chip-emoji">${c.emoji}</span>`);
   const initials = (name) => name.split(/\s+/).map((w) => w[0]).slice(0, 2).join("").toUpperCase();
 
   const store = {
@@ -68,6 +69,7 @@
     const bg = item.image ? "#fff" : item.tint || "var(--mint)";
     const content = item.image
       ? `<img src="${esc(item.image)}" alt="${esc(item.name)}" loading="lazy">`
+      : item.svg ? `<span class="emoji cat-ico">${item.svg}</span>`
       : `<span class="emoji" role="img" aria-label="${esc(item.name)}">${item.emoji || "🧺"}</span>`;
     return `<div class="thumb ${cls}" style="background:${bg}">${inner}${content}</div>`;
   };
@@ -377,5 +379,5 @@
   Cart.onChange(() => { refreshControls(); renderCart(); });
   document.addEventListener("DOMContentLoaded", () => { refreshControls(); renderCart(); });
 
-  window.FL = { D, Cart, byId, categoryById, productCard, thumb, icon, money, esc, initials, store, search, bindLiveSearch, refreshControls, toast, openPanel, closePanels, $, $$ };
+  window.FL = { D, Cart, byId, categoryById, catIcon, productCard, thumb, icon, money, esc, initials, store, search, bindLiveSearch, refreshControls, toast, openPanel, closePanels, $, $$ };
 })();

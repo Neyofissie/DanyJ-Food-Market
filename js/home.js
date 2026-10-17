@@ -1,7 +1,7 @@
 /* Farm Link Food Market — home page */
 (function () {
   "use strict";
-  const { D, byId, productCard, thumb, icon, money, esc, store, bindLiveSearch, refreshControls, toast, Cart, $, $$ } = window.FL;
+  const { D, byId, catIcon, productCard, thumb, icon, money, esc, store, bindLiveSearch, refreshControls, toast, Cart, $, $$ } = window.FL;
   const S = D.store;
   const pick = (names) => names.map((n) => byId[D.slug(n)]).filter(Boolean);
 
@@ -15,8 +15,8 @@
 
   // Category chips → shop
   $("#chips").innerHTML =
-    `<a class="chip active" href="shop.html"><span class="chip-emoji">🧺</span>All products</a>` +
-    D.categories.map((c) => `<a class="chip" href="shop.html?cat=${c.id}"><span class="chip-emoji">${c.emoji}</span>${esc(c.name)}</a>`).join("");
+    `<a class="chip active" href="shop.html">${catIcon({ svg: window.FL_CAT_ICONS && window.FL_CAT_ICONS.all, emoji: "🧺" })}All products</a>` +
+    D.categories.map((c) => `<a class="chip" href="shop.html?cat=${c.id}">${catIcon(c)}${esc(c.name)}</a>`).join("");
 
   // Category tiles
   $("#categories").innerHTML = D.categories.map((c) =>

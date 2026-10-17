@@ -1,7 +1,7 @@
 /* Farm Link Food Market — shop page */
 (function () {
   "use strict";
-  const { D, categoryById, productCard, icon, esc, store, refreshControls, openPanel, $ } = window.FL;
+  const { D, categoryById, catIcon, productCard, icon, esc, store, refreshControls, openPanel, $ } = window.FL;
 
   const params = new URLSearchParams(location.search);
   const state = {
@@ -28,13 +28,13 @@
   };
 
   const renderFilters = () => {
-    const cats = [{ id: "all", name: "All products", emoji: "🧺" }, ...D.categories];
+    const cats = [{ id: "all", name: "All products", emoji: "🧺", svg: window.FL_CAT_ICONS && window.FL_CAT_ICONS.all }, ...D.categories];
     $("#filter-cats").innerHTML = cats.map((c) => {
       const n = c.id === "all" ? all.length : all.filter((p) => p.category === c.id).length;
-      return `<button class="filter-opt ${state.cat === c.id ? "active" : ""}" data-cat="${c.id}"><span>${c.emoji} ${esc(c.name)}</span><small>${n}</small></button>`;
+      return `<button class="filter-opt ${state.cat === c.id ? "active" : ""}" data-cat="${c.id}"><span class="filter-label">${catIcon(c)}${esc(c.name)}</span><small>${n}</small></button>`;
     }).join("");
     $("#shop-chips").innerHTML = cats.map((c) =>
-      `<button class="chip ${state.cat === c.id && !state.recipe ? "active" : ""}" data-cat="${c.id}"><span class="chip-emoji">${c.emoji}</span>${esc(c.name)}</button>`).join("");
+      `<button class="chip ${state.cat === c.id && !state.recipe ? "active" : ""}" data-cat="${c.id}">${catIcon(c)}${esc(c.name)}</button>`).join("");
     $("#f-offers").checked = state.offers;
     $("#f-new").checked = state.fresh;
     $("#f-favs").checked = state.favs;
