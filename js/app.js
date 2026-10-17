@@ -31,6 +31,8 @@
     star: '<path d="M12 2l3.1 6.3 6.9 1-5 4.9 1.2 6.8L12 17.8 5.8 21l1.2-6.8-5-4.9 6.9-1Z" fill="currentColor" stroke="none"/>',
     repeat: '<path d="m17 2 4 4-4 4"/><path d="M3 11v-1a4 4 0 0 1 4-4h14"/><path d="m7 22-4-4 4-4"/><path d="M21 13v1a4 4 0 0 1-4 4H3"/>',
     filter: '<path d="M22 3H2l8 9.5V19l4 2v-8.5Z"/>',
+    home: '<path d="M3 10.5 12 3l9 7.5V20a1 1 0 0 1-1 1h-5v-6H9v6H4a1 1 0 0 1-1-1Z"/>',
+    grid: '<rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/>',
     tag: '<path d="M12.6 2.6A2 2 0 0 0 11.2 2H4a2 2 0 0 0-2 2v7.2a2 2 0 0 0 .6 1.4l8.7 8.7a2.4 2.4 0 0 0 3.4 0l6.6-6.6a2.4 2.4 0 0 0 0-3.4Z"/><circle cx="7.5" cy="7.5" r="1.5" fill="currentColor"/>',
     award: '<circle cx="12" cy="8" r="6"/><path d="M15.5 13 17 22l-5-3-5 3 1.5-9"/>',
     cart: '<circle cx="8" cy="21" r="1"/><circle cx="19" cy="21" r="1"/><path d="M2 2h3l2.7 12.4a2 2 0 0 0 2 1.6h9.7a2 2 0 0 0 1.9-1.5L23 6H6"/>',
@@ -180,7 +182,7 @@
       </a>`;
 
     $("#site-header").outerHTML = `
-      <div class="announce">${esc(S.tagline)} — <strong>${esc(S.strap)}</strong> · Free UK delivery over ${money(S.freeDeliveryOver)}</div>
+      <div class="announce"><span class="announce-long">${esc(S.tagline)} — <strong>${esc(S.strap)}</strong> · </span>Free UK delivery over ${money(S.freeDeliveryOver)}<span class="announce-short"> · Order by ${esc(S.dispatchCutoff)}</span></div>
       <header class="header" id="header">
         <div class="container header-inner">
           <button class="icon-btn menu-btn" data-open-menu aria-label="Open menu">${icon("menu", 22)}</button>
@@ -237,8 +239,19 @@
           </div>
         </div>
       </footer>
+      <div class="mini-cart" id="mini-cart" hidden>
+        <button class="mini-cart-btn" data-open-cart><span class="mini-count" id="mini-count"></span><span id="mini-label">View basket</span><b id="mini-total"></b></button>
+      </div>
+      <nav class="tabbar" aria-label="Quick links">
+        <a href="index.html" class="${page === "home" ? "active" : ""}">${icon("home", 22)}<span>Home</span></a>
+        <a href="shop.html" class="${page === "shop" ? "active" : ""}">${icon("grid", 22)}<span>Shop</span></a>
+        <a href="shop.html#search">${icon("search", 22)}<span>Search</span></a>
+        <button data-open-cart aria-label="Open basket">${icon("bag", 22)}<span>Basket</span><span class="badge-count" data-cart-count data-count="0">0</span></button>
+        <a href="#contact">${icon("user", 22)}<span>Account</span></a>
+      </nav>
       <div class="overlay" id="overlay"></div>
       <aside class="drawer" id="cart" aria-label="Your basket" aria-hidden="true">
+        <span class="sheet-handle" aria-hidden="true"></span>
         <div class="drawer-head"><h3>Your basket</h3><button class="icon-btn" data-close aria-label="Close basket">${icon("close")}</button></div>
         <div class="drawer-body" id="cart-body"></div>
         <div class="drawer-foot" id="cart-foot"></div>
@@ -252,6 +265,15 @@
     const sub = Cart.subtotal();
     const remaining = Math.max(0, S.freeDeliveryOver - sub);
     const pct = Math.min(100, (sub / S.freeDeliveryOver) * 100);
+    const mini = $("#mini-cart");
+    if (mini) {
+      const count = Cart.count();
+      mini.hidden = !count;
+      $("#mini-count").textContent = count;
+      $("#mini-label").textContent = remaining > 0 ? `${money(remaining)} to free delivery` : "View basket · free delivery";
+      $("#mini-total").textContent = money(sub);
+      document.body.classList.toggle("has-mini-cart", !!count);
+    }
     if (!lines.length) {
       body.innerHTML = `<div class="cart-empty"><div class="big">🧺</div><b>Your basket is empty</b><p style="margin:6px 0 20px">Fill it with something fresh.</p><a class="btn btn-primary" href="shop.html">Start shopping</a></div>`;
       foot.style.display = "none";

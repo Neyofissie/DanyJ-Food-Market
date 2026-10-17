@@ -19,7 +19,8 @@
 
   const center = (r) => ({ x: r.left + r.width / 2, y: r.top + r.height / 2 });
   const buzz = (ms = 12) => { try { navigator.vibrate && navigator.vibrate(ms); } catch (e) { /* not supported */ } };
-  const bagButton = () => $(".header [data-open-cart]");
+  // The basket you can actually see: the tab bar on phones, the header elsewhere.
+  const bagButton = () => [$(".tabbar [data-open-cart]"), $(".header [data-open-cart]")].find((el) => el && el.offsetParent !== null);
 
   /* ---------- Basket badge: held back while an item is in the air ---------- */
   let shown = Cart.count();
@@ -390,6 +391,34 @@
   const hints = ["ijebu gari…", "palm oil…", "goat meat…", "scotch bonnet…", "chin chin…", "egusi…"];
   typeHint($("#hero-q"), hints);
   typeHint($("#q"), hints);
+
+  /* ---------- Bottom sheets: drag down to close (phones) ---------- */
+  const sheetDrag = (sheet, grabSel) => {
+    if (!sheet) return;
+    let y0 = null, dy = 0;
+    sheet.addEventListener("touchstart", (e) => {
+      if (!sheet.classList.contains("open") || !window.matchMedia("(max-width: 860px)").matches) return;
+      const grab = e.target.closest(grabSel);
+      const scroller = sheet.querySelector(".drawer-body") || sheet;
+      if (!grab && scroller.scrollTop > 0) return;
+      y0 = e.touches[0].clientY; dy = 0;
+      sheet.style.transition = "none";
+    }, { passive: true });
+    sheet.addEventListener("touchmove", (e) => {
+      if (y0 === null) return;
+      dy = Math.max(0, e.touches[0].clientY - y0);
+      sheet.style.transform = `translateY(${dy}px)`;
+    }, { passive: true });
+    sheet.addEventListener("touchend", () => {
+      if (y0 === null) return;
+      y0 = null;
+      sheet.style.transition = "";
+      sheet.style.transform = "";
+      if (dy > 110) window.FL.closePanels();
+    });
+  };
+  sheetDrag($("#cart"), ".sheet-handle, .drawer-head");
+  sheetDrag($("#filters"), ".sheet-handle, h4");
 
   window.FL.motion = { flyToBasket, confetti };
 })();

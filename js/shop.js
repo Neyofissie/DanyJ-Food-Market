@@ -92,6 +92,8 @@
   $("#filter-toggle").innerHTML = `${icon("filter", 16)} Filters`;
   $("#filter-toggle").addEventListener("click", () => openPanel("filters"));
 
-  if (location.hash === "#search") setTimeout(() => $("#q").focus(), 50);
+  const focusSearch = () => { if (location.hash === "#search") setTimeout(() => { $("#q").focus(); $("#q").scrollIntoView({ block: "center" }); }, 50); };
+  focusSearch();
+  window.addEventListener("hashchange", focusSearch);
   update();
 })();
