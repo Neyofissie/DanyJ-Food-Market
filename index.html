@@ -1,0 +1,246 @@
+<!doctype html>
+<html lang="en-GB">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>FarmLink Food Market — Fresh groceries from local farms, delivered</title>
+  <meta name="description" content="Shop fresh fruit, veg, dairy, bakery and pantry staples from trusted local producers. Delivered to your door by FarmLink Food Market.">
+  <meta name="theme-color" content="#2f6b3d">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🌿</text></svg>">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Outfit:wght@500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/styles.css">
+</head>
+<body data-page="home">
+  <div id="site-header"></div>
+
+  <main>
+    <!-- Hero -->
+    <section class="hero">
+      <div class="container">
+        <div class="hero-card">
+          <div class="hero-art" aria-hidden="true">
+            <svg viewBox="0 0 760 460" preserveAspectRatio="xMaxYMid slice">
+              <defs>
+                <linearGradient id="sky" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#fbf8f0" stop-opacity="0"/><stop offset="1" stop-color="#f4eedf"/></linearGradient>
+                <linearGradient id="fade" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#f8f4ea"/><stop offset=".35" stop-color="#f8f4ea" stop-opacity="0"/></linearGradient>
+              </defs>
+              <circle cx="560" cy="92" r="30" fill="#f2cf72" opacity=".75"/>
+              <path d="M150 300 C 260 200, 360 230, 450 190 S 650 120, 760 170 L760 460 L150 460Z" fill="#dfe6c9"/>
+              <path d="M260 330 C 360 260, 470 280, 560 240 S 700 220, 760 240 L760 460 L260 460Z" fill="#cfdcb4"/>
+              <path d="M320 380 C 420 330, 520 340, 600 310 S 720 300, 760 310 L760 460 L320 460Z" fill="#bccf9c"/>
+              <!-- fields -->
+              <g stroke="#a9c088" stroke-width="2" fill="none" opacity=".7">
+                <path d="M420 400 C 500 370, 600 360, 760 352"/><path d="M440 420 C 520 392, 620 384, 760 378"/><path d="M460 440 C 540 414, 640 408, 760 404"/>
+              </g>
+              <!-- path -->
+              <path d="M560 460 C 560 410, 620 380, 600 330 S 560 300, 580 280" stroke="#efe5cf" stroke-width="14" fill="none" stroke-linecap="round"/>
+              <!-- trees -->
+              <g fill="#8fae6f">
+                <ellipse cx="452" cy="232" rx="10" ry="26"/><ellipse cx="470" cy="238" rx="8" ry="20"/>
+                <ellipse cx="708" cy="196" rx="11" ry="30"/><ellipse cx="726" cy="204" rx="8" ry="22"/>
+                <ellipse cx="380" cy="268" rx="9" ry="22"/>
+              </g>
+              <g fill="#7b9b5c"><rect x="451" y="252" width="2" height="10"/><rect x="707" y="222" width="2" height="10"/></g>
+              <!-- farmhouse -->
+              <g transform="translate(600 230)">
+                <rect x="0" y="18" width="62" height="40" fill="#fbf6ea" stroke="#c9b48e" stroke-width="1.5"/>
+                <path d="M-6 20 L31 -6 L68 20Z" fill="#c8693e"/>
+                <rect x="10" y="30" width="10" height="10" fill="#9fb7c4"/><rect x="40" y="30" width="10" height="10" fill="#9fb7c4"/>
+                <rect x="25" y="38" width="12" height="20" fill="#8c6a48"/>
+                <rect x="70" y="30" width="34" height="28" fill="#efe1c4" stroke="#c9b48e" stroke-width="1.5"/>
+                <path d="M66 32 L87 16 L108 32Z" fill="#b25a32"/>
+              </g>
+              <!-- produce cluster -->
+              <g font-size="58" font-family="Apple Color Emoji, Segoe UI Emoji, Noto Color Emoji, sans-serif">
+                <text x="430" y="452">🥬</text><text x="500" y="456">🍅</text><text x="566" y="452">🥕</text><text x="630" y="458">🍎</text><text x="694" y="452">🥖</text>
+              </g>
+              <rect width="760" height="460" fill="url(#fade)"/>
+            </svg>
+          </div>
+
+          <div class="hero-content">
+            <span class="pill"><svg width="15" height="15" viewBox="0 0 24 24"><path d="M12 2c.4 4.6 2.4 7.6 8 8-5.6.4-7.6 3.4-8 8-.4-4.6-2.4-7.6-8-8 5.6-.4 7.6-3.4 8-8Z" fill="currentColor"/></svg> Fresh from local farms</span>
+            <h1>Fresh food,<br>picked <em>for you</em></h1>
+            <p class="hero-sub">Seasonal produce and everyday essentials from trusted local producers. Simple shopping, delivered daily.</p>
+
+            <form class="search-bar" id="hero-search" role="search" autocomplete="off">
+              <svg class="icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
+              <label class="sr-only" for="hero-q">Search groceries</label>
+              <input id="hero-q" type="search" placeholder="Search products, producers or categories…">
+              <button class="btn btn-primary" type="submit">Search</button>
+              <div class="search-results" role="listbox"></div>
+            </form>
+
+            <div class="trust" id="trust"></div>
+          </div>
+        </div>
+
+        <div class="chips" id="chips" role="tablist" aria-label="Browse by category"></div>
+      </div>
+    </section>
+
+    <!-- Recommended -->
+    <section class="section">
+      <div class="container">
+        <div class="section-head">
+          <div><h2>Recommended for you</h2><p>Hand-picked favourites from our producers this week</p></div>
+          <span class="eyebrow" id="rec-note"></span>
+        </div>
+        <div class="row-scroll">
+          <button class="scroll-btn prev" data-scroll="-1" aria-label="Scroll left"></button>
+          <div class="track" id="recommended"></div>
+          <button class="scroll-btn next" data-scroll="1" aria-label="Scroll right"></button>
+        </div>
+      </div>
+    </section>
+
+    <!-- In season + order again -->
+    <section class="section">
+      <div class="container">
+        <div class="split">
+          <div class="panel">
+            <div class="panel-head"><div><h3>In season now</h3><p>At their freshest and most flavourful</p></div><a class="link-arrow" href="shop.html?filter=seasonal">See all</a></div>
+            <div class="season-grid" id="season"></div>
+          </div>
+          <div class="panel warm">
+            <div class="panel-head"><div><h3>Order again</h3><p>Your favourites, ready to reorder</p></div><a class="link-arrow" href="shop.html">View all</a></div>
+            <div class="reorder-list" id="reorder"></div>
+          </div>
+        </div>
+        <div class="info-bar" id="info-bar"></div>
+      </div>
+    </section>
+
+    <!-- Categories -->
+    <section class="section">
+      <div class="container">
+        <div class="section-head"><div><h2>Shop by category</h2></div><a class="link-arrow" href="shop.html" id="cat-all"></a></div>
+        <div class="cat-grid" id="categories"></div>
+      </div>
+    </section>
+
+    <!-- Popular picks -->
+    <section class="section">
+      <div class="container">
+        <div class="section-head"><div><h2>Popular picks</h2><p>What our customers are loving right now</p></div><a class="link-arrow" href="shop.html" id="pop-all"></a></div>
+        <div class="product-grid" id="popular"></div>
+      </div>
+    </section>
+
+    <!-- Promo -->
+    <section class="section">
+      <div class="container">
+        <div class="promo">
+          <div class="promo-copy">
+            <span class="pill" style="background:rgba(255,255,255,.12);border-color:rgba(255,255,255,.2);color:#fff">Better food, a healthier you</span>
+            <h2 style="margin-top:18px">Fresh produce.<br>Trusted local farms.</h2>
+            <p>Build your weekly shop in minutes, or let us do it for you with a seasonal bundle delivered to your door.</p>
+            <a class="btn" href="#bundles">Shop bundles <svg class="icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg></a>
+          </div>
+          <div class="promo-art" aria-hidden="true">
+            <div class="blob"></div>
+            <div class="bowl"><span>🥦</span><span>🥕</span><span>🍅</span><span>🫑</span><span>🧄</span><span>🥬</span></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Bundles -->
+    <section class="section" id="bundles">
+      <div class="container">
+        <div class="bundles-wrap">
+          <div class="section-head"><div><h2>Weekly bundles</h2><p>Curated boxes, great value, zero effort</p></div></div>
+          <div class="product-grid cols-3" id="bundle-grid"></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- How it works -->
+    <section class="section" id="how">
+      <div class="container">
+        <div class="section-head"><div><h2>How it works</h2><p>From the farm gate to your kitchen in four simple steps</p></div></div>
+        <div class="steps" id="steps"></div>
+      </div>
+    </section>
+
+    <!-- Producers -->
+    <section class="section" id="producers">
+      <div class="container">
+        <div class="section-head"><div><h2>Meet our producers</h2><p>The farmers, bakers and makers behind your food</p></div></div>
+        <div class="producer-grid" id="producer-grid"></div>
+      </div>
+    </section>
+
+    <!-- Reviews -->
+    <section class="section">
+      <div class="container">
+        <div class="section-head"><div><h2>What our customers say</h2></div></div>
+        <div class="reviews" id="reviews"></div>
+      </div>
+    </section>
+
+    <!-- Delivery -->
+    <section class="section" id="delivery">
+      <div class="container">
+        <div class="delivery">
+          <div>
+            <span class="pill">Fresh to your door</span>
+            <h2>Fast, reliable delivery</h2>
+            <p>Order by 10pm for next-day delivery. Choose a time slot that suits you — our drivers handle your groceries with care.</p>
+            <form class="postcode" id="postcode-form">
+              <label class="sr-only" for="postcode-input">Postcode</label>
+              <input id="postcode-input" placeholder="Enter your postcode" maxlength="9" autocomplete="postal-code">
+              <button class="btn btn-primary" type="submit">Check</button>
+            </form>
+            <div class="postcode-msg" id="postcode-msg" role="status"></div>
+            <div class="delivery-points" id="delivery-points"></div>
+          </div>
+          <div class="delivery-art" aria-hidden="true">
+            <svg viewBox="0 0 420 260">
+              <ellipse cx="210" cy="232" rx="190" ry="14" fill="#e9e3d3"/>
+              <path d="M30 120 C 90 80, 150 110, 210 90 S 330 60, 400 90 L400 230 L30 230Z" fill="#e6efdc"/>
+              <g fill="#8fae6f"><ellipse cx="70" cy="140" rx="14" ry="34"/><ellipse cx="96" cy="150" rx="10" ry="26"/><ellipse cx="360" cy="128" rx="14" ry="36"/></g>
+              <!-- van -->
+              <g transform="translate(90 120)">
+                <path d="M0 20 a12 12 0 0 1 12 -12 h150 a10 10 0 0 1 10 10 v82 h-172Z" fill="#fff" stroke="#d9d2c0" stroke-width="2"/>
+                <path d="M172 34 h34 a10 10 0 0 1 8 4 l26 30 a10 10 0 0 1 2 6 v26 h-70Z" fill="#fff" stroke="#d9d2c0" stroke-width="2"/>
+                <path d="M182 42 h24 l22 26 h-46Z" fill="#cfe0ea"/>
+                <rect x="0" y="80" width="242" height="20" rx="4" fill="#2f6b3d"/>
+                <g transform="translate(40 34)" fill="#2f6b3d">
+                  <path d="M10 22 A9 9 0 0 1 9 6 C 16 5 18 4 20 1 c1 2 2 4 2 8 0 6-5 13-12 13Z"/>
+                  <text x="30" y="20" font-family="Outfit, sans-serif" font-weight="700" font-size="22">FarmLink</text>
+                </g>
+                <circle cx="46" cy="102" r="20" fill="#24302a"/><circle cx="46" cy="102" r="8" fill="#cfd6d1"/>
+                <circle cx="196" cy="102" r="20" fill="#24302a"/><circle cx="196" cy="102" r="8" fill="#cfd6d1"/>
+              </g>
+              <g stroke="#c9c0aa" stroke-width="3" stroke-linecap="round"><path d="M40 170h34"/><path d="M24 186h46"/><path d="M48 202h24"/></g>
+            </svg>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Newsletter -->
+    <section class="section">
+      <div class="container">
+        <div class="newsletter">
+          <div><h3>Get 10% off your first order</h3><p>Join our newsletter for seasonal recipes, new producers and exclusive offers.</p></div>
+          <form id="newsletter-form">
+            <label class="sr-only" for="nl-email">Email address</label>
+            <input id="nl-email" type="email" placeholder="you@example.com" required>
+            <button class="btn btn-accent" type="submit">Subscribe</button>
+          </form>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <div id="site-footer"></div>
+
+  <script src="js/data.js"></script>
+  <script src="js/app.js"></script>
+  <script src="js/home.js"></script>
+</body>
+</html>

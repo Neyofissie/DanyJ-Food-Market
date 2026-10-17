@@ -1,0 +1,81 @@
+<!doctype html>
+<html lang="en-GB">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Shop — FarmLink Food Market</title>
+  <meta name="description" content="Browse fresh fruit, veg, dairy, bakery, meat and pantry products from local producers.">
+  <meta name="theme-color" content="#2f6b3d">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🌿</text></svg>">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Outfit:wght@500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/styles.css">
+</head>
+<body data-page="shop">
+  <div id="site-header"></div>
+
+  <main>
+    <section class="page-hero">
+      <div class="container">
+        <div class="crumbs"><a href="index.html">Home</a> / <span id="crumb">Shop</span></div>
+        <h1 id="shop-title">Our products</h1>
+        <p id="shop-sub">Fresh, seasonal and sourced from producers we know by name.</p>
+        <div class="chips" id="shop-chips"></div>
+      </div>
+    </section>
+
+    <section class="container">
+      <div class="shop-layout">
+        <aside class="filters" id="filters" aria-label="Filters">
+          <div class="group">
+            <h4>Category</h4>
+            <div id="filter-cats"></div>
+          </div>
+          <div class="group">
+            <h4>Producer</h4>
+            <div id="filter-producers"></div>
+          </div>
+          <div class="group">
+            <h4>Show only</h4>
+            <label class="check"><input type="checkbox" id="f-seasonal"> Seasonal</label>
+            <label class="check"><input type="checkbox" id="f-offers"> On offer</label>
+            <label class="check"><input type="checkbox" id="f-favs"> My favourites</label>
+          </div>
+          <div class="group">
+            <button class="btn btn-ghost btn-sm btn-block" id="clear-filters">Clear filters</button>
+          </div>
+        </aside>
+
+        <div>
+          <div class="toolbar">
+            <span class="count" id="count"></span>
+            <div class="toolbar-right">
+              <button class="btn btn-ghost btn-sm filter-toggle" id="filter-toggle"></button>
+              <label class="mini-search" id="search">
+                <span id="search-icon"></span>
+                <span class="sr-only">Search products</span>
+                <input type="search" id="q" placeholder="Search…">
+              </label>
+              <label class="sr-only" for="sort">Sort by</label>
+              <select class="select" id="sort">
+                <option value="featured">Featured</option>
+                <option value="price-asc">Price: low to high</option>
+                <option value="price-desc">Price: high to low</option>
+                <option value="name">Name A–Z</option>
+              </select>
+            </div>
+          </div>
+          <div class="product-grid cols-3" id="grid"></div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <div id="site-footer"></div>
+
+  <script src="js/data.js"></script>
+  <script src="js/app.js"></script>
+  <script src="js/shop.js"></script>
+</body>
+</html>
