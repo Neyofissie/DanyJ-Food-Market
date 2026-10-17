@@ -56,7 +56,7 @@ A few products were left out because their price wasn't visible in the screensho
 
 ### Product photos
 
-190 of 191 products have photos, saved as optimised WebP files in `assets/img/products/` (600×600, about 20 KB each). Most come from the original product images uploaded to `screenshots/`; a few were cropped from screenshots of the old shop. Still showing an emoji: Golden Morn 300g.
+190 of 191 products have photos, saved as transparent cut-out WebP files in `assets/img/products/` (600×600, white backgrounds removed). Most come from the original product images uploaded to `screenshots/`; a few were cropped from screenshots of the old shop. Still showing an emoji: Golden Morn 300g.
 
 Photos are also ready for six products that aren't in the catalogue yet because their prices are unknown: Carnation Evaporated Milk 410g, Ola-Ola Pounded Iyan, Rajah All Purpose Seasoning 400g, Titus Sardines, ripe plantain and Tropical Sun Pink Skin Peanuts 500g. Add each one to `js/data.js` with its price and `img:` set to its file name.
 
