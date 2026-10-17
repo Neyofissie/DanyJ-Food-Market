@@ -53,7 +53,7 @@ A few products were left out because their price wasn't visible in the screensho
 
 ### Product photos
 
-62 products have photos. They were cropped from the screenshots and saved as optimised WebP files (480×480, about 15 KB each) in `assets/img/products/`.
+83 products have photos, saved as optimised WebP files in `assets/img/products/` (600×600, about 20 KB each). Most come from the original product images uploaded to `screenshots/`; the rest were cropped from screenshots of the old shop.
 
 Every other product shows an emoji tile until a photo is added. To add one:
 
