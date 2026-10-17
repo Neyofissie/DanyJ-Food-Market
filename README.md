@@ -43,17 +43,19 @@ The catalogue was transcribed from screenshots of the current farmlinkfoodmarket
 
 A few products were left out because their price wasn't visible in the screenshots. Add them to `js/data.js` when you have the prices:
 
-- Carnation Evaporated Milk 410g
-- Rajah All Purpose Seasoning 400g
-- Tropical Sun Pink Skin Peanuts 500g
-- Ola-Ola Pounded Iyan
-- Titus Sardines
-- Ripe plantain
+- Carnation Evaporated Milk 410g (photo ready: `carnation-evaporated-milk-410g`)
+- Rajah All Purpose Seasoning 400g (photo ready: `rajah-all-purpose-seasoning-400g`)
+- Tropical Sun Pink Skin Peanuts 500g (photo ready: `tropical-sun-pink-skin-peanuts-500g`)
+- Ola-Ola Pounded Iyan (photo ready: `ola-ola-pounded-iyan`)
+- Titus Sardines (photo ready: `titus-sardines`)
+- Ripe plantain (photo ready: `ripe-plantain`)
 - Two unnamed items in Fish, Meat & Poultry
 
 ### Product photos
 
-83 products have photos, saved as optimised WebP files in `assets/img/products/` (600×600, about 20 KB each). Most come from the original product images uploaded to `screenshots/`; the rest were cropped from screenshots of the old shop.
+187 of 191 products have photos, saved as optimised WebP files in `assets/img/products/` (600×600, about 20 KB each). Most come from the original product images uploaded to `screenshots/`; a few were cropped from screenshots of the old shop. Still showing an emoji: Easy Cook Rice, Golden Morn 300g, Ground Egusi (Melon) and Agoyin Pepper Mix.
+
+Photos are also ready for six products that aren't in the catalogue yet because their prices are unknown: Carnation Evaporated Milk 410g, Ola-Ola Pounded Iyan, Rajah All Purpose Seasoning 400g, Titus Sardines, ripe plantain and Tropical Sun Pink Skin Peanuts 500g. Add each one to `js/data.js` with its price and `img:` set to its file name.
 
 Every other product shows an emoji tile until a photo is added. To add one:
 

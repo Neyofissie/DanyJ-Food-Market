@@ -1,5 +1,7 @@
 # Image prompts — Farm Link Food Market
 
+> **Update:** real photos have since been uploaded for 187 of the 191 products. The product sections below are only needed for: Easy Cook Rice, Golden Morn 300g, Ground Egusi (Melon) and Agoyin Pepper Mix. The hero is done. The section images (story, wholesale, recipes) are still open.
+
 Prompts for the hero, the site sections and the 129 products that don't have a photo yet. They work in Midjourney, ChatGPT / DALL·E, Ideogram, Flux, Firefly and similar tools.
 
 When you have images, put them in the folders named below (or send them to Claude) and they'll be wired into the site.
