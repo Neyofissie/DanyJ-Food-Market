@@ -9,8 +9,9 @@ It's a plain static site with no build step. Open `index.html` in a browser, or 
 - **`index.html` (Home)**:
   - Hero with live product search and the store's delivery promises
   - Shop by category (all 8 collections)
-  - Customer favourites carousel
-  - "New in store" and "Order again" (remembers what this visitor added before)
+  - Deals of the week (real sale prices, biggest saving first)
+  - "Repeat & save" carousel with tabs: Customer favourites, Order again, New in store, On sale
+  - "New in store" and "Order again" panels (remembers what this visitor added before)
   - Our story, recipes with "Shop the ingredients", and Nigerian snacks
   - Wholesale banner and box deals
   - How it works, delivery info, email sign-up and footer
@@ -18,6 +19,8 @@ It's a plain static site with no build step. Open `index.html` in a browser, or 
   - Filters for category, on sale, new in store and favourites, plus search and sorting.
   - Filters are kept in the URL, e.g. `shop.html?cat=wholesale`, `shop.html?filter=new` or `shop.html?recipe=jollof`.
   - On mobile, the filters open as a sheet that slides up from the bottom.
+- **Product view** (on every page): tap a product's photo or name for a larger view with quantity, savings, delivery info and "More from" the same category. A pop-up on desktop, a slide-up sheet on phones.
+- **Phones** use an app style: greeting, lime "Add" buttons, dark pill tabs, a dark basket strip and a lime tab-bar highlight.
 - **Basket drawer** (on every page):
   - Quantity steppers
   - Free-delivery progress bar

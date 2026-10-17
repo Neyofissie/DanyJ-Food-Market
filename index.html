@@ -28,6 +28,7 @@
           </div>
 
           <div class="hero-content">
+            <p class="hero-greet" id="hero-greet"></p>
             <span class="pill"><svg width="15" height="15" viewBox="0 0 24 24"><path d="M12 2c.4 4.6 2.4 7.6 8 8-5.6.4-7.6 3.4-8 8-.4-4.6-2.4-7.6-8-8 5.6-.4 7.6-3.4 8-8Z" fill="currentColor"/></svg> African &amp; Caribbean groceries</span>
             <h1>A taste of home<br>in <em>every basket</em></h1>
             <p class="hero-sub">Fresh peppers and leaves, meat and fish, swallow, seasonings and snacks — delivered across the UK from Newcastle-under-Lyme.</p>
@@ -36,6 +37,7 @@
               <svg class="icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
               <label class="sr-only" for="hero-q">Search groceries</label>
               <input id="hero-q" type="search" placeholder="Search gari, palm oil, goat meat…">
+              <span class="loc-pill" aria-hidden="true"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"/><circle cx="12" cy="10" r="3"/></svg> UK-wide</span>
               <button class="btn btn-primary" type="submit">Search</button>
               <div class="search-results" role="listbox"></div>
             </form>
@@ -56,12 +58,26 @@
       </div>
     </section>
 
+    <!-- Deals of the week -->
+    <section class="section">
+      <div class="container">
+        <div class="section-head"><div><h2>Deals of the week</h2><p>Real savings on kitchen staples, while stocks last</p></div><a class="link-arrow" href="shop.html?filter=sale" id="deal-all"></a></div>
+        <div class="deals" id="deals"></div>
+      </div>
+    </section>
+
     <!-- Customer favourites -->
     <section class="section">
       <div class="container">
         <div class="section-head">
-          <div><h2>Customer favourites</h2><p>The staples our customers come back for</p></div>
+          <div><h2>Repeat &amp; save</h2><p>The staples our customers come back for</p></div>
           <a class="link-arrow" href="shop.html" id="fav-all"></a>
+        </div>
+        <div class="seg" id="fav-tabs" role="tablist" aria-label="Product lists">
+          <button class="active" role="tab" aria-selected="true" data-tab="fav">Customer favourites</button>
+          <button role="tab" aria-selected="false" data-tab="again">Order again</button>
+          <button role="tab" aria-selected="false" data-tab="new">New in store</button>
+          <button role="tab" aria-selected="false" data-tab="sale">On sale</button>
         </div>
         <div class="row-scroll">
           <button class="scroll-btn prev" data-scroll="-1" aria-label="Scroll left"></button>

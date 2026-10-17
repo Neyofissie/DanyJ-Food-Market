@@ -72,12 +72,12 @@
 
   /* ---------- Fly to basket ---------- */
   const sourceVisual = (btn) => {
-    const holder = btn.closest(".card, .reorder, .season-tile, .search-result");
-    const thumb = holder && holder.querySelector(".thumb");
+    const holder = btn.closest(".card, .reorder, .season-tile, .search-result, .pd, .deal");
+    const thumb = holder && holder.querySelector(".pd-media, .thumb");
     return thumb || btn;
   };
 
-  const flyToBasket = (btn) => {
+  const flyToBasket = (btn, n = 1) => {
     const bag = bagButton();
     const src = sourceVisual(btn);
     if (!bag || !src) return false;
@@ -92,7 +92,7 @@
     const img = src.querySelector && src.querySelector("img");
     const emoji = src.querySelector && src.querySelector(".emoji");
     if (img) {
-      fly.style.background = "#fff";
+      fly.style.background = src.style.background || "#fff";
       fly.appendChild(img.cloneNode());
     } else if (emoji) {
       fly.style.background = src.style.background || "var(--mint)";
@@ -124,7 +124,7 @@
     anim.onfinish = () => {
       fly.remove();
       inFlight = Math.max(0, inFlight - 1);
-      catchInBag(1);
+      catchInBag(n);
     };
     return true;
   };
@@ -419,6 +419,7 @@
   };
   sheetDrag($("#cart"), ".sheet-handle, .drawer-head");
   sheetDrag($("#filters"), ".sheet-handle, h4");
+  sheetDrag($("#pd"), ".sheet-handle, .pd-media");
 
   window.FL.motion = { flyToBasket, confetti };
 })();

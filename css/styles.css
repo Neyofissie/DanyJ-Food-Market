@@ -818,3 +818,165 @@ p { margin: 0; }
   .season-tile div:last-child { padding: 10px 14px; }
   .season-tile b { font-size: 14.5px; }
 }
+
+/* =========================================================
+   Reference refresh: tinted tiles, deals, tabs, product view,
+   and the lime app style on phones
+   ========================================================= */
+:root { --lime: #c8f03c; --lime-2: #e6fa9e; --lime-ink: #1d2a0c; --ink-dark: #16201a; }
+
+/* Product photos sit on a soft category colour; white photo backgrounds melt away */
+.thumb img { mix-blend-mode: multiply; }
+.card .media { background-image: radial-gradient(circle at 50% 60%, rgba(255, 255, 255, .55), transparent 70%); }
+.card h3 a { color: inherit; }
+.card h3 a:hover { color: var(--green); }
+.card .media, .deal-img { cursor: pointer; }
+.fx-fly img { mix-blend-mode: multiply; }
+
+/* Search: location pill (phones) and greeting */
+.loc-pill, .hero-greet { display: none; }
+
+/* Segmented tabs (Repeat & save) */
+.seg { display: flex; gap: 6px; padding: 5px; margin: -6px 0 18px; border-radius: 999px; background: var(--surface-2); width: max-content; max-width: 100%; overflow-x: auto; scrollbar-width: none; }
+.seg::-webkit-scrollbar { display: none; }
+.seg button { flex: none; height: 38px; padding: 0 16px; border-radius: 999px; font-size: 14px; font-weight: 600; color: var(--ink-2); transition: background .2s, color .2s, box-shadow .2s; }
+.seg button:hover { color: var(--ink); }
+.seg button.active { background: var(--surface); color: var(--green-ink); box-shadow: 0 2px 8px rgba(31, 42, 34, .1); }
+.tab-empty { grid-column: 1 / -1; width: 100%; }
+.row-scroll .track > .tab-empty { grid-column: span 4; }
+
+/* Deals of the week */
+.deals { display: grid; grid-template-columns: repeat(6, minmax(0, 1fr)); gap: 14px; }
+.deal {
+  position: relative; display: flex; flex-direction: column; gap: 8px; min-height: 250px; padding: 16px;
+  border-radius: 22px; background: var(--tint); overflow: hidden; transition: transform .2s, box-shadow .2s;
+}
+.deal:hover { transform: translateY(-3px); box-shadow: var(--shadow); }
+.deal-top { display: flex; flex-direction: column; gap: 2px; position: relative; z-index: 1; }
+.deal-up { font-size: 12px; color: var(--ink-3); font-weight: 600; }
+.deal-pct { font-family: var(--font-head); font-size: 24px; font-weight: 700; color: var(--green-ink); line-height: 1.05; }
+.deal-name { font-size: 13px; color: var(--ink-2); line-height: 1.3; cursor: pointer; }
+.deal-img { flex: 1; min-height: 96px; background: transparent !important; font-size: 52px; }
+.deal-img img { object-fit: contain; max-height: 120px; }
+.deal-foot { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+.deal-foot b { font-size: 16px; }
+.deal-foot s { font-size: 12.5px; color: var(--ink-3); }
+.deal-foot .add-btn { width: 38px; height: 38px; }
+.deal-info { justify-content: space-between; }
+.deal-info .deal-pct { font-size: 22px; }
+.deal-cta { display: inline-flex; align-items: center; gap: 6px; font-weight: 600; font-size: 14px; color: var(--green); }
+.deal-info.dark { background: var(--green-ink); }
+.deal-info.dark .deal-up, .deal-info.dark .deal-name { color: #b9cdb6; }
+.deal-info.dark .deal-pct { color: var(--lime); }
+.deal-info.dark .deal-cta { color: #fff; }
+
+/* ---------- Product view (modal on desktop, sheet on phones) ---------- */
+.pd {
+  position: fixed; z-index: 110; left: 50%; top: 50%; width: min(980px, calc(100% - 48px)); max-height: min(88vh, 760px);
+  overflow: auto; overscroll-behavior: contain; background: var(--surface); border-radius: 28px; box-shadow: var(--shadow-lg);
+  transform: translate(-50%, -46%) scale(.97); opacity: 0; visibility: hidden;
+  transition: transform .35s cubic-bezier(.2, 1, .3, 1), opacity .25s, visibility 0s .35s;
+}
+.pd.open { transform: translate(-50%, -50%) scale(1); opacity: 1; visibility: visible; transition-delay: 0s; }
+.pd .sheet-handle { display: none; }
+.pd-close { position: absolute; top: 14px; right: 14px; z-index: 2; background: rgba(255, 255, 255, .9); box-shadow: 0 2px 8px rgba(0, 0, 0, .08); }
+.pd-inner { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.05fr); }
+.pd-media { position: relative; min-height: 460px; border-radius: 28px 0 0 28px; font-size: 140px; }
+.pd-media img { object-fit: contain; padding: 9%; }
+.pd-media .card-badge { top: 18px; left: 18px; }
+.pd-info { display: flex; flex-direction: column; gap: 14px; padding: 36px 36px 30px; min-width: 0; }
+.pd-cat { display: inline-flex; align-items: center; gap: 8px; align-self: flex-start; font-size: 13px; font-weight: 600; color: var(--green); padding: 6px 12px 6px 8px; border-radius: 999px; background: var(--mint); }
+.pd-cat .chip-ico { width: 22px; height: 22px; }
+.pd-info h2 { font-size: clamp(24px, 2.6vw, 32px); color: var(--green-ink); text-wrap: balance; }
+.pd-price { display: flex; align-items: baseline; gap: 10px; flex-wrap: wrap; }
+.pd-price b { font-family: var(--font-head); font-size: 30px; color: var(--ink); }
+.pd-price s { color: var(--ink-3); }
+.pd-save { font-size: 12px; font-weight: 700; color: #fff; background: var(--red); padding: 3px 9px; border-radius: 999px; }
+.pd-chips { display: flex; flex-wrap: wrap; gap: 8px; }
+.pd-chips span { display: inline-flex; align-items: center; gap: 6px; font-size: 12.5px; font-weight: 500; color: var(--ink-2); padding: 7px 12px; border-radius: 999px; background: var(--surface-2); }
+.pd-chips .icon { color: var(--green); }
+.pd-desc { color: var(--ink-2); font-size: 15px; }
+.pd-buy { display: flex; gap: 10px; align-items: center; margin-top: 4px; }
+.pd-qty { height: 52px; }
+.pd-qty button { width: 44px; height: 52px; }
+.pd-qty span { min-width: 26px; font-size: 17px; }
+.pd-add { flex: 1; height: 52px; font-size: 16px; }
+.pd-note { font-size: 13px; color: var(--green); font-weight: 600; min-height: 18px; display: flex; align-items: center; gap: 6px; }
+.pd-info h4 { font-family: var(--font-body); font-size: 12px; letter-spacing: .12em; text-transform: uppercase; color: var(--ink-3); font-weight: 600; margin-top: 4px; }
+.pd-more { display: grid; grid-auto-flow: column; grid-auto-columns: 112px; gap: 10px; overflow-x: auto; padding-bottom: 6px; scrollbar-width: thin; }
+.pd-more-item { display: flex; flex-direction: column; gap: 6px; text-align: left; }
+.pd-more-item .thumb { aspect-ratio: 1; border-radius: 14px; font-size: 36px; transition: transform .2s; }
+.pd-more-item:hover .thumb { transform: translateY(-2px); }
+.pd-more-item span { font-size: 12px; line-height: 1.25; color: var(--ink-2); display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+.pd-more-item b { font-size: 13px; }
+
+@media (max-width: 1100px) {
+  .deals { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+}
+
+/* ---------- Phones: lime app style (second reference) ---------- */
+@media (max-width: 860px) {
+  /* Greeting + compact hero */
+  .hero-greet { display: block; font-size: 14px; font-weight: 600; color: var(--ink-2); margin: 0 0 6px; }
+  .hero .pill { display: none; }
+  .hero h1 { font-size: 32px; margin: 0 0 10px; }
+  .hero-sub { display: none; }
+  .search-bar { margin-top: 16px; }
+  .loc-pill { display: inline-flex; align-items: center; gap: 4px; flex: none; height: 34px; padding: 0 12px; border-radius: 999px; background: var(--lime); color: var(--lime-ink); font-size: 12px; font-weight: 700; }
+  .search-bar .btn { display: none; }
+  .trust { display: flex; flex-wrap: nowrap; overflow-x: auto; gap: 8px; margin: 16px -26px 0; padding: 0 26px 2px; scrollbar-width: none; }
+  .trust::-webkit-scrollbar { display: none; }
+  .trust-item { flex: none; background: rgba(255, 255, 255, .85); border: 1px solid var(--line); border-radius: 999px; padding: 6px 12px 6px 6px; gap: 8px; }
+  .trust-item .ti-icon { width: 28px; height: 28px; border-radius: 50%; border: 0; background: var(--lime-2); color: var(--lime-ink); }
+  .trust-item b { font-size: 12.5px; white-space: nowrap; }
+  .trust-item span { display: none; }
+
+  /* Dark active pill, like the "All" chip */
+  .chip.active { background: var(--ink-dark); border-color: var(--ink-dark); color: #fff; }
+  .seg { background: transparent; padding: 0; gap: 8px; margin: -4px 0 14px; }
+  .seg button { height: 36px; background: var(--surface); border: 1px solid var(--line); }
+  .seg button.active { background: var(--ink-dark); color: #fff; border-color: var(--ink-dark); box-shadow: none; }
+
+  /* Lime buttons */
+  .add-btn, .card .stepper, .deal .stepper { background: var(--lime); color: var(--lime-ink); box-shadow: 0 6px 14px rgba(150, 190, 20, .35); }
+  .add-btn:hover { background: #bde22e; box-shadow: 0 6px 14px rgba(150, 190, 20, .45); }
+  .card .stepper button, .deal .stepper button { color: var(--lime-ink); }
+  .pd-add { background: var(--lime); color: var(--lime-ink); }
+  .pd-add:hover { background: #bde22e; }
+  .circle-add { border-color: var(--lime-ink); background: var(--lime); }
+
+  /* Deals scroll sideways like "Best value days" */
+  .deals { display: grid; grid-auto-flow: column; grid-template-columns: none; grid-auto-columns: 46%; overflow-x: auto; scroll-snap-type: x mandatory; padding-bottom: 6px; scrollbar-width: none; }
+  .deals::-webkit-scrollbar { display: none; }
+  .deal { scroll-snap-align: start; min-height: 230px; padding: 14px; }
+  .deal-pct { font-size: 21px; }
+
+  /* Dark basket strip with lime count */
+  .mini-cart-btn { background: var(--ink-dark); box-shadow: 0 10px 24px rgba(22, 32, 26, .35); }
+  .mini-count { background: var(--lime); color: var(--lime-ink); }
+
+  /* Tab bar: lime capsule on the active item */
+  .tabbar a.active::before { display: none; }
+  .tabbar a.active { color: var(--ink-dark); }
+  .tabbar a.active .icon { background: var(--lime); border-radius: 999px; padding: 3px 14px; width: auto; height: 28px; box-sizing: content-box; margin: -3px 0; }
+
+  /* Product view becomes a full-height sheet */
+  .pd {
+    left: 0; right: 0; top: auto; bottom: 0; width: 100%; max-height: 94vh; border-radius: 26px 26px 0 0;
+    transform: translateY(100%); opacity: 1; padding-bottom: env(safe-area-inset-bottom, 0px);
+  }
+  .pd.open { transform: none; }
+  .pd .sheet-handle { display: block; position: absolute; top: 0; left: 50%; transform: translateX(-50%); z-index: 2; background: rgba(31, 42, 34, .25); }
+  .pd-inner { grid-template-columns: 1fr; }
+  .pd-media { min-height: 0; aspect-ratio: 1 / .82; border-radius: 26px 26px 0 0; font-size: 110px; }
+  .pd-info { padding: 20px 18px 24px; gap: 12px; }
+  .pd-buy { position: sticky; bottom: 0; background: var(--surface); padding: 10px 0 4px; margin: 0 -2px; }
+  .pd-price b { font-size: 26px; }
+}
+@media (max-width: 640px) {
+  .deals { grid-auto-columns: 62%; }
+  .row-scroll .track > .tab-empty { grid-column: auto; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .pd { transition: none; }
+}

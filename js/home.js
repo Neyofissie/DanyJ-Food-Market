@@ -13,6 +13,30 @@
     ["box", "Wholesale deals", "Bulk boxes & cartons"],
   ].map(([i, b, s]) => `<div class="trust-item"><span class="ti-icon">${icon(i, 19)}</span><div><b>${b}</b><span>${s}</span></div></div>`).join("");
 
+  // Greeting (shown on phones, like an app home screen)
+  const hr = new Date().getHours();
+  $("#hero-greet").textContent = `${hr < 12 ? "Good morning" : hr < 18 ? "Good afternoon" : "Good evening"} 👋 Let's plan your shop`;
+
+  // Deals of the week: real sale prices, plus two store offers
+  $("#deal-all").innerHTML = `All deals ${icon("arrow", 16)}`;
+  const sale = D.products.filter((p) => p.wasPrice).sort((a, b) => (b.wasPrice - b.price) / b.wasPrice - (a.wasPrice - a.price) / a.wasPrice);
+  $("#deals").innerHTML = sale.map((p) => {
+    const pct = Math.round((1 - p.price / p.wasPrice) * 100);
+    return `<article class="deal" style="--tint:${p.tint}">
+      <div class="deal-top"><span class="deal-up">Save</span><b class="deal-pct">${pct}% OFF</b><span class="deal-name" data-open-product="${p.id}">${esc(p.name)}</span></div>
+      ${thumb(p, "deal-img" + '" data-open-product="' + p.id)}
+      <div class="deal-foot"><span><b>${money(p.price)}</b> <s>${money(p.wasPrice)}</s></span><button class="add-btn" data-add="${p.id}" aria-label="Add ${esc(p.name)}">${icon("plus", 18)}</button></div>
+    </article>`;
+  }).join("") + `
+    <a class="deal deal-info" href="shop.html?cat=wholesale" style="--tint:#e4ecdc">
+      <div class="deal-top"><span class="deal-up">Wholesale</span><b class="deal-pct">Boxes from £6</b><span class="deal-name">Meat, fish, peppers and pantry staples by the box</span></div>
+      <span class="deal-cta">Shop wholesale ${icon("arrow", 16)}</span>
+    </a>
+    <a class="deal deal-info dark" href="#delivery">
+      <div class="deal-top"><span class="deal-up">Delivery</span><b class="deal-pct">Free over ${money(S.freeDeliveryOver)}</b><span class="deal-name">Order by ${esc(S.dispatchCutoff)} for next-day dispatch across the UK</span></div>
+      <span class="deal-cta">How delivery works ${icon("arrow", 16)}</span>
+    </a>`;
+
   // Category chips → shop
   $("#chips").innerHTML =
     `<a class="chip active" href="shop.html">${catIcon({ svg: window.FL_CAT_ICONS && window.FL_CAT_ICONS.all, emoji: "🧺" })}All products</a>` +
@@ -27,7 +51,29 @@
   ["#fav-all", "#snack-all", "#ws-all"].forEach((s) => ($(s).innerHTML = arrow));
   const favourites = pick(["Goat Meat With Bone", "Mackerel Fish", "Ijebu Gari", "Scotch Bonnet (Ata Rodo)", "Palm Oil", "Ground Egusi (Melon)",
     "Maggi Star Seasoning Cubes 400g", "Fresh Bell Pepper (Tatashe)", "Oxtail", "Yellow Croaker Fish"]);
-  $("#favourites").innerHTML = favourites.map(productCard).join("");
+  // Repeat & save tabs: favourites, order again, new in, on sale
+  const tabLists = {
+    fav: () => favourites,
+    again: () => store.get("history", []).map((id) => byId[id]).filter(Boolean),
+    new: () => D.products.filter((p) => p.badge === "New"),
+    sale: () => D.products.filter((p) => p.wasPrice),
+  };
+  let currentTab = "fav";
+  const renderTab = (tab, animate) => {
+    currentTab = tab;
+    const list = tabLists[tab]();
+    $("#favourites").innerHTML = list.length
+      ? list.map(productCard).join("")
+      : `<div class="empty-note tab-empty">Nothing here yet. Products you add to your basket will show up here for quick reordering.</div>`;
+    $$("#fav-tabs button").forEach((b) => { const on = b.dataset.tab === tab; b.classList.toggle("active", on); b.setAttribute("aria-selected", on); });
+    $("#favourites").scrollLeft = 0;
+    if (animate && !window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
+      $$("#favourites > *").slice(0, 6).forEach((el, i) => el.animate([{ opacity: 0, transform: "translateX(18px)" }, { opacity: 1, transform: "none" }],
+        { duration: 320, delay: i * 40, easing: "cubic-bezier(.2,.8,.3,1)", fill: "backwards" }));
+    }
+  };
+  renderTab("fav");
+  $("#fav-tabs").addEventListener("click", (e) => { const b = e.target.closest("[data-tab]"); if (b && b.dataset.tab !== currentTab) renderTab(b.dataset.tab, true); });
   $$("[data-scroll]").forEach((btn) => {
     btn.innerHTML = icon(btn.dataset.scroll === "1" ? "right" : "left", 20);
     btn.addEventListener("click", () => {
@@ -38,7 +84,7 @@
 
   // New in store
   $("#new-in").innerHTML = D.products.filter((p) => p.badge === "New").slice(0, 3).map((p) =>
-    `<a class="season-tile" href="shop.html?q=${encodeURIComponent(p.name)}">${thumb(p)}<div><b>${esc(p.name)}</b><span>${money(p.price)}</span></div></a>`).join("");
+    `<a class="season-tile" href="#" data-open-product="${p.id}">${thumb(p)}<div><b>${esc(p.name)}</b><span>${money(p.price)}</span></div></a>`).join("");
 
   // Order again (from basket history), falling back to customer favourites
   const renderReorder = () => {
@@ -47,7 +93,7 @@
     $("#reorder").innerHTML = ids.slice(0, 4).map((id) => {
       const p = byId[id];
       return `<div class="reorder">
-        <div class="reorder-top">${thumb(p)}<div><b>${esc(p.name)}</b><span>${esc(D.categories.find((c) => c.id === p.category).name)}</span></div></div>
+        <div class="reorder-top" data-open-product="${id}">${thumb(p)}<div><b>${esc(p.name)}</b><span>${esc(D.categories.find((c) => c.id === p.category).name)}</span></div></div>
         <div class="reorder-foot"><span class="price">${p.from ? "From " : ""}${money(p.price)}</span><button class="circle-add" data-add="${id}" aria-label="Add ${esc(p.name)}">${icon("plus", 18)}</button></div>
       </div>`;
     }).join("");
@@ -112,5 +158,6 @@
 
   bindLiveSearch($("#hero-search"));
   Cart.onChange(renderReorder);
+  Cart.onChange(() => { if (currentTab === "again") renderTab("again"); });
   refreshControls();
 })();

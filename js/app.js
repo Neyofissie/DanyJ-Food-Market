@@ -66,7 +66,7 @@
   const categoryById = Object.fromEntries(D.categories.map((c) => [c.id, c]));
 
   const thumb = (item, cls = "", inner = "") => {
-    const bg = item.image ? "#fff" : item.tint || "var(--mint)";
+    const bg = item.tint || "var(--mint)";
     const content = item.image
       ? `<img src="${esc(item.image)}" alt="${esc(item.name)}" loading="lazy">`
       : item.svg ? `<span class="emoji cat-ico">${item.svg}</span>`
@@ -125,12 +125,12 @@
     const fav = favs.includes(p.id);
     const cat = categoryById[p.category];
     return `<article class="card" data-id="${p.id}">
-      ${thumb(p, "media",
+      ${thumb(p, "media" + '" data-open-product="' + p.id,
         (badge ? `<span class="card-badge ${badge[0]}">${badge[1]}</span>` : "") +
         `<button class="fav-btn ${fav ? "on" : ""}" data-fav="${p.id}" aria-label="Save to favourites" aria-pressed="${fav}">${icon("heart", 17)}</button>`)}
       <div class="card-body">
         <span class="card-cat">${cat ? esc(cat.name) : ""}</span>
-        <h3>${esc(p.name)}</h3>
+        <h3><a href="#" data-open-product="${p.id}">${esc(p.name)}</a></h3>
         <div class="price-row">
           ${p.from ? `<span class="price-unit">From</span>` : ""}
           <span class="price">${money(p.price)}</span>
@@ -252,6 +252,11 @@
         <a href="#contact">${icon("user", 22)}<span>Account</span></a>
       </nav>
       <div class="overlay" id="overlay"></div>
+      <section class="pd" id="pd" role="dialog" aria-modal="true" aria-label="Product details" aria-hidden="true">
+        <span class="sheet-handle" aria-hidden="true"></span>
+        <button class="icon-btn pd-close" data-close aria-label="Close product">${icon("close")}</button>
+        <div class="pd-inner" id="pd-inner"></div>
+      </section>
       <aside class="drawer" id="cart" aria-label="Your basket" aria-hidden="true">
         <span class="sheet-handle" aria-hidden="true"></span>
         <div class="drawer-head"><h3>Your basket</h3><button class="icon-btn" data-close aria-label="Close basket">${icon("close")}</button></div>
@@ -309,9 +314,54 @@
     document.body.style.overflow = "hidden";
   };
   const closePanels = () => {
-    $$(".drawer.open, .mobile-nav.open, .filters.open").forEach((el) => { el.classList.remove("open"); el.setAttribute("aria-hidden", "true"); });
+    $$(".drawer.open, .mobile-nav.open, .filters.open, .pd.open").forEach((el) => { el.classList.remove("open"); el.setAttribute("aria-hidden", "true"); });
     const ov = $("#overlay"); if (ov) ov.classList.remove("open");
     document.body.style.overflow = "";
+  };
+
+  /* ---------- Product view ---------- */
+  let pdQty = 1;
+  const renderProduct = (id) => {
+    const p = byId[id];
+    const cat = categoryById[p.category];
+    const save = p.wasPrice ? Math.round((1 - p.price / p.wasPrice) * 100) : 0;
+    const inBasket = Cart.qty(id);
+    const more = D.products.filter((x) => x.category === p.category && x.id !== id && x.image).slice(0, 8);
+    $("#pd-inner").innerHTML = `
+      ${thumb(p, "pd-media", p.badge && p.badge !== "Sale" ? `<span class="card-badge ${p.badge === "New" ? "new" : "top"}">${p.badge === "Favourite" ? icon("sparkle", 12) + " " : ""}${esc(p.badge)}</span>` : "")}
+      <div class="pd-info">
+        <a class="pd-cat" href="shop.html?cat=${p.category}">${catIcon(cat)}${esc(cat.name)}</a>
+        <h2>${esc(p.name)}</h2>
+        <div class="pd-price">
+          ${p.from ? `<span class="price-unit">From</span>` : ""}<b>${money(p.price)}</b>
+          ${p.wasPrice ? `<s>${money(p.wasPrice)}</s><span class="pd-save">Save ${save}%</span>` : ""}
+        </div>
+        <div class="pd-chips">
+          <span>${icon("check", 15)} In stock</span>
+          <span>${icon("clock", 15)} Order by ${esc(S.dispatchCutoff)}, next-day dispatch</span>
+          <span>${icon("truck", 15)} Free UK delivery over ${money(S.freeDeliveryOver)}</span>
+        </div>
+        <p class="pd-desc">${esc(cat.desc)}${p.from ? " Available in more than one size — choose at checkout." : ""}</p>
+        <div class="pd-buy">
+          <div class="stepper light pd-qty" role="group" aria-label="Quantity">
+            <button data-pd-qty="-1" aria-label="Decrease">${icon("minus", 16)}</button>
+            <span id="pd-qty">${pdQty}</span>
+            <button data-pd-qty="1" aria-label="Increase">${icon("plus", 16)}</button>
+          </div>
+          <button class="btn btn-primary pd-add" data-pd-add="${id}">${icon("bag", 18)} Add to basket · <span id="pd-total">${money(p.price * pdQty)}</span></button>
+        </div>
+        <p class="pd-note" id="pd-note">${inBasket ? `${icon("check", 14)} ${inBasket} already in your basket` : ""}</p>
+        ${more.length ? `<h4>More from ${esc(cat.name)}</h4>
+        <div class="pd-more">${more.map((m) => `<button class="pd-more-item" data-open-product="${m.id}" title="${esc(m.name)}">${thumb(m)}<span>${esc(m.name)}</span><b>${money(m.price)}</b></button>`).join("")}</div>` : ""}
+      </div>`;
+  };
+  const openProduct = (id) => {
+    if (!byId[id]) return;
+    pdQty = 1;
+    renderProduct(id);
+    const pd = $("#pd");
+    if (!pd.classList.contains("open")) { closePanels(); openPanel("pd"); }
+    pd.scrollTop = 0;
   };
 
   /* ---------- Global events ---------- */
@@ -329,6 +379,23 @@
       else if (t.hasAttribute("data-checkout")) toast("Checkout coming soon — connect your payment provider");
     });
     document.addEventListener("keydown", (e) => { if (e.key === "Escape") closePanels(); });
+    document.addEventListener("click", (e) => {
+      const open = e.target.closest("[data-open-product]");
+      const qty = e.target.closest("[data-pd-qty]");
+      const add = e.target.closest("[data-pd-add]");
+      if (open) { e.preventDefault(); openProduct(open.dataset.openProduct); }
+      else if (qty) {
+        pdQty = Math.min(99, Math.max(1, pdQty + Number(qty.dataset.pdQty)));
+        $("#pd-qty").textContent = pdQty;
+        $("#pd-total").textContent = money(byId[$("[data-pd-add]").dataset.pdAdd].price * pdQty);
+      } else if (add) {
+        const id = add.dataset.pdAdd;
+        if (window.FL.motion) window.FL.motion.flyToBasket(add, pdQty);
+        Cart.add(id, pdQty);
+        toast(`${pdQty} × ${byId[id].name} added to basket`);
+        $("#pd-note").innerHTML = `${icon("check", 14)} ${Cart.qty(id)} in your basket`;
+      }
+    });
     document.addEventListener("click", (e) => { if (e.target.closest("#mobile-nav nav a")) closePanels(); });
     const header = $("#header");
     const onScroll = () => header && header.classList.toggle("scrolled", window.scrollY > 8);
@@ -379,5 +446,5 @@
   Cart.onChange(() => { refreshControls(); renderCart(); });
   document.addEventListener("DOMContentLoaded", () => { refreshControls(); renderCart(); });
 
-  window.FL = { D, Cart, byId, categoryById, catIcon, productCard, thumb, icon, money, esc, initials, store, search, bindLiveSearch, refreshControls, toast, openPanel, closePanels, $, $$ };
+  window.FL = { D, Cart, byId, categoryById, catIcon, openProduct, productCard, thumb, icon, money, esc, initials, store, search, bindLiveSearch, refreshControls, toast, openPanel, closePanels, $, $$ };
 })();
