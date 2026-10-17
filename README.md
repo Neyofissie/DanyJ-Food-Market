@@ -1,58 +1,78 @@
-# FarmLink Food Market — website redesign
+# Farm Link Food Market — website redesign
 
-A modern online grocery storefront for FarmLink Food Market. It uses a fresh, warm design: a cream and sage palette, a hand-drawn farm landscape, rounded product cards with producer details, and seasonal discovery sections.
+A modern online storefront for Farm Link Food Market (a trading name of 88 African Foods & Grocery Ltd, Newcastle-under-Lyme): African and Caribbean groceries with free UK delivery over £60. It has a cream and green palette, a hand-drawn farm hero, rounded product cards and a slide-out basket.
 
 It's a plain static site with no build step. Open `index.html` in a browser, or upload the folder to any static host (Netlify, Vercel, GitHub Pages, cPanel and so on).
 
 ## Pages & features
 
-- **`index.html` (Discover)**: the hero section with live product search, trust badges and category chips. Below that:
-  - Recommended carousel
-  - "In season now" and "Order again" sections (Order again remembers what this visitor has added to their basket before)
-  - Delivery and local-producer info cards
-  - Categories, popular picks and a promo banner
-  - Weekly bundles, "How it works", producers and reviews
-  - A postcode delivery checker, newsletter sign-up and footer
+- **`index.html` (Home)**:
+  - Hero with live product search and the store's delivery promises
+  - Shop by category (all 8 collections)
+  - Customer favourites carousel
+  - "New in store" and "Order again" (remembers what this visitor added before)
+  - Our story, recipes with "Shop the ingredients", and Nigerian snacks
+  - Wholesale banner and box deals
+  - How it works, delivery info, email sign-up and footer
 - **`shop.html` (Shop)**: the full catalogue.
-  - Filters for category, producer, seasonal, on offer and favourites, plus search and sorting.
-  - Filters are kept in the URL, e.g. `shop.html?cat=dairy` or `shop.html?filter=seasonal`.
+  - Filters for category, on sale, new in store and favourites, plus search and sorting.
+  - Filters are kept in the URL, e.g. `shop.html?cat=wholesale`, `shop.html?filter=new` or `shop.html?recipe=jollof`.
   - On mobile, the filters open as a sheet that slides up from the bottom.
 - **Basket drawer** (on every page):
   - Quantity steppers
   - Free-delivery progress bar
-  - Subtotal, delivery fee and total
+  - Subtotal and total (delivery free over £60)
   - The basket is saved in the visitor's browser.
 - **Fully responsive**: desktop, tablet and phone.
 
 ## Editing content
 
-**All products, prices, categories, producers, bundles, reviews and store details are in `js/data.js`.** That is the only file you need to edit.
+**All products, prices, categories, recipes and store details are in `js/data.js`.** That is the only file you need to edit.
 
-> ⚠️ The catalogue currently holds **placeholder** products, prices, reviews and contact details. The old site (farmlinkfoodmarket.co.uk) could not be reached when this was built, so none of its content has been imported yet. Replace the placeholders with your real data before launch.
+The catalogue was transcribed from screenshots of the current farmlinkfoodmarket.co.uk shop. It has **191 products in 8 collections**: Grains & Legumes, Swallow, Fish Meat & Poultry, Fresh Veg & Fruits, Oils & Seasoning, Drinks & Beverages, Nigerian Snacks and Wholesale Box Deals. Prices, sale prices, "New in store" and "Customer favourites" all match the screenshots.
 
-### Adding real product photos
+A few products were left out because their price wasn't visible in the screenshots. Add them to `js/data.js` when you have the prices:
 
-1. Put the image in `assets/img/products/` (a square or 4:3 JPG/WebP, around 800px, works best).
-2. In `js/data.js`, add `image: "assets/img/products/your-photo.jpg"` to that product.
+- Carnation Evaporated Milk 410g
+- Rajah All Purpose Seasoning 400g
+- Tropical Sun Pink Skin Peanuts 500g
+- Ola-Ola Pounded Iyan
+- Titus Sardines
+- Ripe plantain
+- Two unnamed items in Fish, Meat & Poultry
 
-Products without an `image` show an illustrated emoji tile on a soft coloured background (`emoji` + `tint`). This keeps the layout looking finished while photos are being collected.
+### Product photos
+
+62 products have photos. They were cropped from the screenshots and saved as optimised WebP files (480×480, about 15 KB each) in `assets/img/products/`.
+
+Every other product shows an emoji tile until a photo is added. To add one:
+
+1. Save the photo in `assets/img/products/` as a `.webp` file.
+2. In `js/data.js`, add `img: "file-name"` to that product (leave off the `.webp`).
+
+Higher-resolution originals exported from Shopify (Products → Export, or each product's image) will look sharper than screenshot crops.
+
+### Recipes
+
+The four recipes (Jollof Rice, Egusi Soup, Ewa Agoyin, Peppered Goat Meat) each list their ingredients in `js/data.js`. "Shop the ingredients" opens the shop filtered to just those products.
 
 ## Still to connect before going live
 
 - **Checkout / payments**: the Checkout button is a placeholder. Hook it up to Stripe, Shopify Buy Button, Square, etc.
-- **Delivery areas**: the postcode checker only checks the UK postcode format. Swap in your real delivery-area list.
+- **Delivery fee**: the basket shows "Calculated at checkout" under £60 and "Free" above it. Set the real fee when checkout is connected.
+- **Contact details**: add your email and phone number to `store` in `js/data.js` and they'll appear in the footer.
 - **Newsletter**: connect the form to Mailchimp, Klaviyo or similar.
 - **Account, FAQs, policies and social links**: these are currently `#` links.
 
 ## Structure
 
 ```
-index.html        Discover / home page
+index.html        Home page
 shop.html         Shop / catalogue page
 css/styles.css    All styling (design tokens at the top)
-js/data.js        Catalogue + store details  ← edit this
+js/data.js        Catalogue, recipes + store details  ← edit this
 js/app.js         Shared header, footer, basket, product cards
 js/home.js        Home page sections
 js/shop.js        Shop filters, search and sorting
-assets/img/       Images
+assets/img/products/  Product photos (WebP)
 ```

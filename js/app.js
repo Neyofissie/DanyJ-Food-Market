@@ -1,4 +1,4 @@
-/* FarmLink Food Market — shared app logic (header, footer, cart, product cards) */
+/* Farm Link Food Market — shared app logic (header, footer, cart, product cards) */
 (function () {
   "use strict";
 
@@ -31,6 +31,10 @@
     star: '<path d="M12 2l3.1 6.3 6.9 1-5 4.9 1.2 6.8L12 17.8 5.8 21l1.2-6.8-5-4.9 6.9-1Z" fill="currentColor" stroke="none"/>',
     repeat: '<path d="m17 2 4 4-4 4"/><path d="M3 11v-1a4 4 0 0 1 4-4h14"/><path d="m7 22-4-4 4-4"/><path d="M21 13v1a4 4 0 0 1-4 4H3"/>',
     filter: '<path d="M22 3H2l8 9.5V19l4 2v-8.5Z"/>',
+    tag: '<path d="M12.6 2.6A2 2 0 0 0 11.2 2H4a2 2 0 0 0-2 2v7.2a2 2 0 0 0 .6 1.4l8.7 8.7a2.4 2.4 0 0 0 3.4 0l6.6-6.6a2.4 2.4 0 0 0 0-3.4Z"/><circle cx="7.5" cy="7.5" r="1.5" fill="currentColor"/>',
+    award: '<circle cx="12" cy="8" r="6"/><path d="M15.5 13 17 22l-5-3-5 3 1.5-9"/>',
+    cart: '<circle cx="8" cy="21" r="1"/><circle cx="19" cy="21" r="1"/><path d="M2 2h3l2.7 12.4a2 2 0 0 0 2 1.6h9.7a2 2 0 0 0 1.9-1.5L23 6H6"/>',
+    chef: '<path d="M17 21a1 1 0 0 0 1-1v-5.4a1 1 0 0 1 .6-.9 4 4 0 0 0-2.6-7.6 5 5 0 0 0-8 0 4 4 0 0 0-2.6 7.6 1 1 0 0 1 .6.9V20a1 1 0 0 0 1 1Z"/><path d="M6 17h12"/>',
     box: '<path d="M21 8a2 2 0 0 0-1-1.7l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.7l7 4a2 2 0 0 0 2 0l7-4a2 2 0 0 0 1-1.7Z"/><path d="m3.3 7 8.7 5 8.7-5"/><path d="M12 22V12"/>',
     trash: '<path d="M3 6h18"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6"/><path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/>',
     instagram: '<rect x="2" y="2" width="20" height="20" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.5" cy="6.5" r="1" fill="currentColor"/>',
@@ -56,12 +60,10 @@
 
   const byId = {};
   D.products.forEach((p) => (byId[p.id] = p));
-  D.bundles.forEach((b) => (byId[b.id] = { ...b, category: "bundle", isBundle: true }));
-  const producerById = Object.fromEntries(D.producers.map((p) => [p.id, p]));
   const categoryById = Object.fromEntries(D.categories.map((c) => [c.id, c]));
 
   const thumb = (item, cls = "", inner = "") => {
-    const bg = item.tint || "var(--mint)";
+    const bg = item.image ? "#fff" : item.tint || "var(--mint)";
     const content = item.image
       ? `<img src="${esc(item.image)}" alt="${esc(item.name)}" loading="lazy">`
       : `<span class="emoji" role="img" aria-label="${esc(item.name)}">${item.emoji || "🧺"}</span>`;
@@ -99,9 +101,8 @@
 
   /* ---------- Product card ---------- */
   const BADGES = {
-    "Top pick": ["top", icon("sparkle", 12) + " Top pick"],
-    Seasonal: ["seasonal", icon("leaf", 12) + " Seasonal"],
-    Offer: ["offer", "Offer"],
+    Favourite: ["top", icon("sparkle", 12) + " Favourite"],
+    Sale: ["offer", "Sale"],
     New: ["new", "New"],
   };
 
@@ -116,27 +117,24 @@
   };
 
   const productCard = (p) => {
-    const prod = producerById[p.producer];
     const badge = p.badge && BADGES[p.badge];
     const fav = favs.includes(p.id);
-    const items = p.items ? `<div class="bundle-items" aria-label="Includes">${p.items.map((i) => byId[i] ? `<span title="${esc(byId[i].name)}">${byId[i].emoji}</span>` : "").join("")}</div>` : "";
-    return `<article class="card ${p.isBundle ? "bundle" : ""}" data-id="${p.id}">
+    const cat = categoryById[p.category];
+    return `<article class="card" data-id="${p.id}">
       ${thumb(p, "media",
         (badge ? `<span class="card-badge ${badge[0]}">${badge[1]}</span>` : "") +
         `<button class="fav-btn ${fav ? "on" : ""}" data-fav="${p.id}" aria-label="Save to favourites" aria-pressed="${fav}">${icon("heart", 17)}</button>`)}
       <div class="card-body">
-        ${prod ? `<div class="producer"><span class="avatar">${initials(prod.name)}</span><div><b>${esc(prod.name)}</b><span>${esc(prod.county)}</span></div></div>` : ""}
+        <span class="card-cat">${cat ? esc(cat.name) : ""}</span>
         <h3>${esc(p.name)}</h3>
-        <p class="desc">${esc(p.desc)}</p>
-        ${items}
         <div class="price-row">
+          ${p.from ? `<span class="price-unit">From</span>` : ""}
           <span class="price">${money(p.price)}</span>
-          <span class="price-unit">/ ${esc(p.unit)}</span>
           ${p.wasPrice ? `<span class="was">${money(p.wasPrice)}</span>` : ""}
         </div>
       </div>
       <div class="card-foot">
-        <span class="stock ${p.seasonal ? "seasonal" : ""}">${p.isBundle ? "Weekly box" : p.seasonal ? "Seasonal" : "In stock"}</span>
+        <span class="stock">In stock</span>
         <span data-control="${p.id}">${cartControl(p.id)}</span>
       </div>
     </article>`;
@@ -160,30 +158,33 @@
 
   /* ---------- Shell: header, footer, drawer ---------- */
   const NAV = [
-    ["index.html", "Discover"],
+    ["index.html", "Home"],
     ["shop.html", "Shop"],
-    ["index.html#producers", "Producers"],
-    ["shop.html?filter=seasonal", "Seasonal"],
-    ["index.html#bundles", "Bundles"],
-    ["index.html#how", "How it works"],
+    ["index.html#recipes", "Recipes"],
+    ["index.html#story", "Our Story"],
+    ["shop.html?cat=wholesale", "Wholesale"],
+    ["#contact", "Contact"],
   ];
 
   const renderShell = () => {
     const page = document.body.dataset.page;
-    const isActive = (href, label) => (page === "home" && label === "Discover") || (page === "shop" && label === "Shop");
-    const navLinks = NAV.map(([href, label]) => `<a href="${href}" class="${isActive(href, label) ? "active" : ""}">${label}</a>`).join("");
+    const params = new URLSearchParams(location.search);
+    const isActive = (label) =>
+      (page === "home" && label === "Home") ||
+      (page === "shop" && label === "Wholesale" && params.get("cat") === "wholesale") ||
+      (page === "shop" && label === "Shop" && params.get("cat") !== "wholesale");
+    const navLinks = NAV.map(([href, label]) => `<a href="${href}" class="${isActive(label) ? "active" : ""}">${label}</a>`).join("");
     const logo = `<a href="index.html" class="logo" aria-label="${esc(S.fullName)} home">
         <span class="logo-mark">${icon("leaf", 20)}</span>
         <span>${esc(S.name)}<small>Food Market</small></span>
       </a>`;
 
     $("#site-header").outerHTML = `
-      <div class="announce">${icon("truck", 14)} <strong>Free delivery</strong> on orders over ${money(S.freeDeliveryOver)} · Fresh from local farms</div>
+      <div class="announce">${esc(S.tagline)} — <strong>${esc(S.strap)}</strong> · Free UK delivery over ${money(S.freeDeliveryOver)}</div>
       <header class="header" id="header">
         <div class="container header-inner">
           <button class="icon-btn menu-btn" data-open-menu aria-label="Open menu">${icon("menu", 22)}</button>
           ${logo}
-          <button class="location" data-postcode-jump>${icon("pin", 17)} <span data-area>${esc(store.get("area", S.defaultArea))}</span> ${icon("chevron", 15)}</button>
           <nav class="nav" aria-label="Main">${navLinks}</nav>
           <div class="header-actions">
             <a class="icon-btn" href="shop.html#search" aria-label="Search">${icon("search", 21)}</a>
@@ -198,13 +199,20 @@
       </aside>`;
 
     const year = new Date().getFullYear();
+    const contactRows = [
+      [icon("pin", 16), esc(S.location)],
+      S.email && [icon("mail", 16), `<a href="mailto:${esc(S.email)}">${esc(S.email)}</a>`],
+      S.phone && [icon("phone", 16), `<a href="tel:${esc(S.phone.replace(/\s/g, ""))}">${esc(S.phone)}</a>`],
+      [icon("truck", 16), `Free UK delivery over ${money(S.freeDeliveryOver)}`],
+      [icon("clock", 16), `Order by ${esc(S.dispatchCutoff)} for next-day dispatch`],
+    ].filter(Boolean).map(([i, t]) => `<li style="display:flex;gap:8px;align-items:flex-start">${i}<span>${t}</span></li>`).join("");
     $("#site-footer").outerHTML = `
-      <footer class="footer">
+      <footer class="footer" id="contact">
         <div class="container">
           <div class="footer-grid">
             <div>
               ${logo}
-              <p>${esc(S.tagline)}. Seasonal produce and pantry staples from trusted local producers, delivered to your door.</p>
+              <p>${esc(S.tagline)}. Authentic African and Caribbean foods, connecting our community to the flavours, ingredients and traditions they grew up with.</p>
               <div class="socials">
                 <a href="#" aria-label="Instagram">${icon("instagram", 18)}</a>
                 <a href="#" aria-label="Facebook">${icon("facebook", 18)}</a>
@@ -212,24 +220,19 @@
               </div>
             </div>
             <div><h4>Shop</h4><ul>
-              ${D.categories.slice(0, 5).map((c) => `<li><a href="shop.html?cat=${c.id}">${esc(c.name)}</a></li>`).join("")}
-              <li><a href="index.html#bundles">Weekly bundles</a></li>
+              ${D.categories.map((c) => `<li><a href="shop.html?cat=${c.id}">${esc(c.name)}</a></li>`).join("")}
             </ul></div>
-            <div><h4>Help</h4><ul>
+            <div><h4>Explore</h4><ul>
+              <li><a href="index.html#recipes">Recipes</a></li>
+              <li><a href="index.html#story">Our story</a></li>
+              <li><a href="index.html#wholesale">Wholesale enquiries</a></li>
               <li><a href="index.html#how">How it works</a></li>
-              <li><a href="index.html#delivery">Delivery areas</a></li>
-              <li><a href="#">FAQs</a></li>
-              <li><a href="#">Returns & refunds</a></li>
-              <li><a href="#">Become a producer</a></li>
+              <li><a href="#">Terms and policies</a></li>
             </ul></div>
-            <div><h4>Contact</h4><ul>
-              <li style="display:flex;gap:8px;align-items:center">${icon("mail", 16)}<a href="mailto:${esc(S.email)}">${esc(S.email)}</a></li>
-              <li style="display:flex;gap:8px;align-items:center">${icon("phone", 16)}<span>${esc(S.phone)}</span></li>
-              <li style="display:flex;gap:8px;align-items:center">${icon("pin", 16)}<span>${esc(S.address)}</span></li>
-            </ul></div>
+            <div><h4>Contact</h4><ul>${contactRows}</ul></div>
           </div>
           <div class="footer-bottom">
-            <span>© ${year} ${esc(S.fullName)}. All rights reserved.</span>
+            <span>© ${year} ${esc(S.fullName)} · A trading name of ${esc(S.company)}</span>
             <span><a href="#">Privacy</a> · <a href="#">Terms</a> · <a href="#">Cookies</a></span>
           </div>
         </div>
@@ -260,19 +263,18 @@
       ${lines.map(([id, q]) => { const p = byId[id]; return `
         <div class="cart-line">
           ${thumb(p)}
-          <div class="grow"><b>${esc(p.name)}</b><span class="unit">${money(p.price)} / ${esc(p.unit)}</span></div>
+          <div class="grow"><b>${esc(p.name)}</b><span class="unit">${money(p.price)} each</span></div>
           <div class="line-right">
             <span class="line-price">${money(p.price * q)}</span>
             <div class="stepper light"><button data-dec="${id}" aria-label="Decrease">${icon(q === 1 ? "trash" : "minus", 15)}</button><span>${q}</span><button data-inc="${id}" aria-label="Increase">${icon("plus", 15)}</button></div>
           </div>
         </div>`; }).join("")}`;
-    const fee = remaining > 0 ? S.deliveryFee : 0;
     foot.innerHTML = `
       <div class="sum-row"><span>Subtotal</span><span>${money(sub)}</span></div>
-      <div class="sum-row"><span>Delivery</span><span>${fee ? money(fee) : "Free"}</span></div>
-      <div class="sum-row total"><span>Total</span><span>${money(sub + fee)}</span></div>
+      <div class="sum-row"><span>Delivery</span><span>${remaining > 0 ? "Calculated at checkout" : "Free"}</span></div>
+      <div class="sum-row total"><span>Total</span><span>${money(sub)}</span></div>
       <button class="btn btn-primary btn-block" data-checkout>Checkout ${icon("arrow", 18)}</button>
-      <p style="font-size:12.5px;color:var(--ink-3);text-align:center;margin-top:10px">${icon("clock", 13)} Next delivery: ${esc(S.nextDelivery)}</p>`;
+      <p style="font-size:12.5px;color:var(--ink-3);text-align:center;margin-top:10px">${icon("clock", 13)} Order by ${esc(S.dispatchCutoff)} for next-day dispatch</p>`;
   };
 
   /* ---------- Panels ---------- */
@@ -291,7 +293,7 @@
   /* ---------- Global events ---------- */
   const bindGlobal = () => {
     document.addEventListener("click", (e) => {
-      const t = e.target.closest("[data-add],[data-inc],[data-dec],[data-fav],[data-open-cart],[data-open-menu],[data-close],[data-checkout],#overlay,[data-postcode-jump]");
+      const t = e.target.closest("[data-add],[data-inc],[data-dec],[data-fav],[data-open-cart],[data-open-menu],[data-close],[data-checkout],#overlay");
       if (!t) return;
       if (t.dataset.add) { Cart.add(t.dataset.add); toast(`${byId[t.dataset.add].name} added to basket`); }
       else if (t.dataset.inc) Cart.add(t.dataset.inc);
@@ -301,13 +303,9 @@
       else if (t.hasAttribute("data-open-menu")) openPanel("mobile-nav");
       else if (t.hasAttribute("data-close") || t.id === "overlay") closePanels();
       else if (t.hasAttribute("data-checkout")) toast("Checkout coming soon — connect your payment provider");
-      else if (t.hasAttribute("data-postcode-jump")) {
-        const target = $("#delivery");
-        if (target) { target.scrollIntoView({ behavior: "smooth" }); setTimeout(() => $("#postcode-input")?.focus(), 500); }
-        else location.href = "index.html#delivery";
-      }
     });
     document.addEventListener("keydown", (e) => { if (e.key === "Escape") closePanels(); });
+    document.addEventListener("click", (e) => { if (e.target.closest("#mobile-nav nav a")) closePanels(); });
     const header = $("#header");
     const onScroll = () => header && header.classList.toggle("scrolled", window.scrollY > 8);
     window.addEventListener("scroll", onScroll, { passive: true });
@@ -318,10 +316,9 @@
   const search = (q) => {
     q = q.trim().toLowerCase();
     if (!q) return [];
-    return Object.values(byId).filter((p) => {
-      const prod = producerById[p.producer];
+    return D.products.filter((p) => {
       const cat = categoryById[p.category];
-      return [p.name, p.desc, prod && prod.name, cat && cat.name].some((s) => s && s.toLowerCase().includes(q));
+      return [p.name, cat && cat.name].some((s) => s && s.toLowerCase().includes(q));
     });
   };
 
@@ -333,8 +330,8 @@
       focus = -1;
       if (!input.value.trim()) { box.classList.remove("open"); return; }
       box.innerHTML = res.length
-        ? res.map((p) => `<a class="search-result" href="shop.html?q=${encodeURIComponent(p.name)}">${thumb(p)}<div class="meta"><b>${esc(p.name)}</b><span>${esc(p.unit)}${producerById[p.producer] ? " · " + esc(producerById[p.producer].name) : ""}</span></div><span class="price">${money(p.price)}</span></a>`).join("")
-        : `<div class="search-empty">No matches for “${esc(input.value)}”. Try “eggs” or “honey”.</div>`;
+        ? res.map((p) => `<a class="search-result" href="shop.html?q=${encodeURIComponent(p.name)}">${thumb(p)}<div class="meta"><b>${esc(p.name)}</b><span>${esc(categoryById[p.category]?.name || "")}</span></div><span class="price">${money(p.price)}</span></a>`).join("")
+        : `<div class="search-empty">No matches for “${esc(input.value)}”. Try “gari” or “palm oil”.</div>`;
       box.classList.add("open");
     };
     input.addEventListener("input", render);
@@ -358,5 +355,5 @@
   Cart.onChange(() => { refreshControls(); renderCart(); });
   document.addEventListener("DOMContentLoaded", () => { refreshControls(); renderCart(); });
 
-  window.FL = { D, Cart, byId, producerById, categoryById, productCard, thumb, icon, money, esc, initials, store, search, bindLiveSearch, refreshControls, toast, openPanel, closePanels, $, $$ };
+  window.FL = { D, Cart, byId, categoryById, productCard, thumb, icon, money, esc, initials, store, search, bindLiveSearch, refreshControls, toast, openPanel, closePanels, $, $$ };
 })();
