@@ -23,6 +23,16 @@ It's a plain static site with no build step. Open `index.html` in a browser, or 
   - Free-delivery progress bar
   - Subtotal and total (delivery free over £60)
   - The basket is saved in the visitor's browser.
+- **Micro-interactions** (`js/motion.js`):
+  - Products fly into the basket in an arc; the basket catches them, and the count pops with a "+1".
+  - Quantities roll up and down, and the + button stretches into a quantity stepper.
+  - Buttons press down, hearts burst, and cards tilt towards the cursor with a light sheen.
+  - Carousels can be dragged and thrown with a mouse.
+  - Basket items slide in when the basket opens, and removed items swipe away.
+  - Confetti fires when the basket reaches free delivery.
+  - The shop grid animates when filters change, sections rise into view on scroll, and the search hint types itself.
+  - Phones give a light vibration when you add an item.
+  - Everything is toned down for visitors who have reduced motion turned on.
 - **Fully responsive**: desktop, tablet and phone.
 
 ## Editing content
@@ -74,5 +84,6 @@ js/data.js        Catalogue, recipes + store details  ← edit this
 js/app.js         Shared header, footer, basket, product cards
 js/home.js        Home page sections
 js/shop.js        Shop filters, search and sorting
+js/motion.js      Micro-interactions and animations
 assets/img/products/  Product photos (WebP)
 ```

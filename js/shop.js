@@ -70,6 +70,7 @@
       : `<div class="no-results"><div style="font-size:48px">🔍</div><b>No products found</b><p>Try a different search or clear your filters.</p></div>`;
     refreshControls();
     syncUrl();
+    document.dispatchEvent(new CustomEvent("fl:grid"));
   };
 
   const update = () => { renderFilters(); render(); };
