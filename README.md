@@ -29,6 +29,13 @@ It's a plain static site with no build step. Open `index.html` in a browser, or 
   - Favourites, an address book (add, edit, default, remove) and payment methods (placeholder until card payments are connected).
   - Settings: profile, safe place and driver notes, notification switches, sign out.
   - **Preview only:** accounts, orders and addresses are saved in the visitor's browser. Order progress is estimated from the time since ordering. Connect a real login, payment and order system before launch.
+- **`admin.html` (Admin dashboard)**: not linked from the shop; open `/admin.html` directly. Protected by a passcode set on first visit (preview lock only).
+  - Overview: revenue, average order, live products, stock alerts, 7-day sales chart, recent orders, top sellers.
+  - Products: search and filter; edit price, sale ("was") price and stock right in the table; show/hide; add or edit products with photo upload; bulk % off, end sale, set stock, hide/show; import a CSV (this dashboard's export or a Shopify product export) with a review step; export CSV.
+  - Inventory: out of stock / low / in stock / not tracked, quick adjust and restock. Stock drops automatically when orders are placed; the shop shows "Only X left" and "Sold out" and won't let customers add more than is in stock.
+  - Discounts: discount codes (percentage, fixed amount, free delivery; minimum spend; end date; usage count) that customers enter at checkout, plus category-wide sales.
+  - Orders: fulfil orders and change their status; customers see the new status in their account.
+  - Settings: free-delivery threshold, delivery fee, cut-off time, low-stock level, contact details, backup/restore and reset.
 - **Basket drawer** (on every page):
   - Quantity steppers
   - Free-delivery progress bar
@@ -82,10 +89,10 @@ The four recipes (Jollof Rice, Egusi Soup, Ewa Agoyin, Peppered Goat Meat) each 
 ## Still to connect before going live
 
 - **Checkout / payments**: the Checkout button is a placeholder. Hook it up to Stripe, Shopify Buy Button, Square, etc.
-- **Delivery fee**: the basket shows "Calculated at checkout" under £60 and "Free" above it. Set the real fee when checkout is connected.
+- **Delivery fee**: £4.99 under £60 is a placeholder. Set the real fee in Admin → Settings.
 - **Contact details**: add your email and phone number to `store` in `js/data.js` and they'll appear in the footer.
 - **Newsletter**: connect the form to Mailchimp, Klaviyo or similar.
-- **Accounts and orders**: replace the browser-only storage in `js/account.js` with a real login, payments and order system (e.g. Shopify customer accounts, Stripe + Supabase).
+- **Admin, accounts and orders**: the dashboard, accounts and orders currently save to the browser (`localStorage`). Replace this in `js/account.js` with a real login, payments and order system (e.g. Shopify customer accounts, Stripe + Supabase).
 - **FAQs, policies and social links**: these are currently `#` links.
 
 ## Structure
@@ -94,11 +101,13 @@ The four recipes (Jollof Rice, Egusi Soup, Ewa Agoyin, Peppered Goat Meat) each 
 index.html        Home page
 shop.html         Shop / catalogue page
 account.html      Customer account and checkout
+admin.html        Admin dashboard (css/admin.css)
 css/styles.css    All styling (design tokens at the top)
 js/data.js        Catalogue, recipes + store details  ← edit this
 js/app.js         Shared header, footer, basket, product cards
 js/home.js        Home page sections
 js/shop.js        Shop filters, search and sorting
+js/admin.js       Admin dashboard (products, inventory, discounts, orders, settings)
 js/account.js     Account area: sign in, overview, checkout, orders, addresses, settings
 js/motion.js      Micro-interactions and animations
 js/category-icons.js  Illustrated icons for the 8 categories

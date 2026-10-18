@@ -1240,3 +1240,18 @@ p { margin: 0; }
 .acc-nav { max-width: 100%; }
 body.on-checkout .mini-cart { display: none !important; }
 @media (max-width: 860px) { body.on-checkout { padding-bottom: calc(68px + env(safe-area-inset-bottom, 0px)); } }
+
+/* ---------- Stock & discount codes (set from the admin dashboard) ---------- */
+.stock.low { background: #fdf1d9; color: #94640f; }
+.stock.out { background: #fbe4de; color: var(--red); }
+.soldout { display: inline-flex; align-items: center; height: 36px; padding: 0 12px; border-radius: 999px; background: var(--surface-2); color: var(--ink-3); font-size: 12.5px; font-weight: 700; }
+.pd-chips span.out { background: #fbe4de; color: var(--red); }
+.pd-chips span.out .icon { color: var(--red); }
+.pd-chips span.low { background: #fdf1d9; color: #94640f; }
+.pd-add[disabled] { opacity: .5; pointer-events: none; }
+.code-form { display: flex; gap: 8px; margin: 6px 0 2px; }
+.code-form input { flex: 1; min-width: 0; height: 40px; border: 1.5px solid var(--line); border-radius: 10px; padding: 0 12px; text-transform: uppercase; outline: 0; background: #fff; }
+.code-form input:focus { border-color: var(--green); }
+.code-msg { font-size: 12.5px; color: var(--red); display: flex; align-items: center; gap: 4px; }
+.code-msg.ok { color: var(--green); font-weight: 600; }
+.sum-row.disc span:last-child { color: var(--green); font-weight: 600; }

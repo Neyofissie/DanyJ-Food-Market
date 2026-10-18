@@ -34,12 +34,22 @@
   // real order system reports the status.
   const stageOf = (o) => {
     if (o.cancelled) return -1;
+    if (o.status != null) return o.status; // set by the shop in Admin → Orders
     const hrs = (Date.now() - o.placed) / 36e5;
     return hrs < 0.5 ? 0 : hrs < 4 ? 1 : hrs < 24 ? 2 : 3;
   };
   const orderTotal = (o) => Object.entries(o.items).reduce((s, [id, q]) => s + (byId[id] ? byId[id].price * q : 0), 0);
   const orderCount = (o) => Object.values(o.items).reduce((a, b) => a + b, 0);
-  const deliveryFee = (sub) => (sub >= S.freeDeliveryOver ? 0 : 4.99);
+  const deliveryFee = (sub, freeShip) => (freeShip || sub >= S.freeDeliveryOver ? 0 : S.deliveryFee);
+  // Discount codes created in Admin → Discounts
+  const findCode = (code) => (D.discounts || []).find((d) => d.active && d.code.toUpperCase() === String(code || "").trim().toUpperCase() && (!d.expires || new Date(d.expires + "T23:59:59") >= new Date()));
+  const discountFor = (code, sub) => {
+    const d = findCode(code);
+    if (!d || sub < (Number(d.minSpend) || 0)) return { d: null, amount: 0, freeShip: false };
+    if (d.type === "freeship") return { d, amount: 0, freeShip: true };
+    const amount = d.type === "percent" ? Math.round(sub * Number(d.value)) / 100 : Math.min(sub, Number(d.value));
+    return { d, amount, freeShip: false };
+  };
 
   // Delivery slots: the next 5 days, morning / afternoon / evening, starting tomorrow
   // (or the day after if it's past the dispatch cut-off).
@@ -220,7 +230,7 @@
     </div>`;
 
   /* ---------- Basket & checkout ---------- */
-  let chosen = { addr: null, day: null, time: null };
+  let chosen = { addr: null, day: null, time: null, code: "" };
   const viewBasket = () => {
     const cart = store.get("cart", {});
     const lines = Object.entries(cart).filter(([id]) => byId[id]);
@@ -232,7 +242,12 @@
     const days = slotDays();
     if (!chosen.day) chosen.day = days[0].toISOString();
     if (!chosen.time) chosen.time = SLOT_TIMES[0][1];
-    const sub = Cart.subtotal(); const fee = deliveryFee(sub);
+    const sub = Cart.subtotal();
+    const disc = discountFor(chosen.code, sub);
+    const fee = deliveryFee(sub, disc.freeShip);
+    const total = Math.max(0, sub - disc.amount) + fee;
+    const codeMsg = !chosen.code ? "" : disc.d ? `${icon("check", 14)} ${esc(disc.d.code)} applied${disc.freeShip ? ": free delivery" : ""}`
+      : findCode(chosen.code) ? `Spend ${money(findCode(chosen.code).minSpend)} or more to use ${esc(chosen.code.toUpperCase())}.` : `${esc(chosen.code.toUpperCase())} isn't a valid code.`;
     return head("Basket & checkout", `${Cart.count()} ${Cart.count() === 1 ? "item" : "items"} · order by ${esc(S.dispatchCutoff)} for next-day dispatch`) + `
       <div class="checkout">
         <div class="checkout-main">
@@ -262,10 +277,13 @@
           <h2>Order summary</h2>
           <div class="ship-meter">${sub < S.freeDeliveryOver ? `Add <b>${money(S.freeDeliveryOver - sub)}</b> for free delivery` : `🎉 You've unlocked <b>free delivery</b>`}<div class="bar"><i style="width:${Math.min(100, (sub / S.freeDeliveryOver) * 100)}%"></i></div></div>
           <div class="sum-row"><span>Subtotal</span><span>${money(sub)}</span></div>
+          ${disc.amount ? `<div class="sum-row disc"><span>Discount (${esc(disc.d.code)})</span><span>−${money(disc.amount)}</span></div>` : ""}
           <div class="sum-row"><span>Delivery</span><span>${fee ? money(fee) : "Free"}</span></div>
-          <div class="sum-row total"><span>Total</span><span>${money(sub + fee)}</span></div>
+          <form class="code-form" data-code-form><label class="sr-only" for="promo">Discount code</label><input id="promo" placeholder="Discount code" value="${esc(chosen.code)}" autocomplete="off"><button class="btn btn-ghost btn-sm" type="submit">${chosen.code && disc.d ? "Change" : "Apply"}</button></form>
+          ${codeMsg ? `<p class="code-msg ${disc.d ? "ok" : ""}">${codeMsg}</p>` : ""}
+          <div class="sum-row total"><span>Total</span><span>${money(total)}</span></div>
           <p class="sum-slot">${icon("truck", 16)} ${fmtDate(chosen.day, { weekday: "long", day: "numeric", month: "long" })}, ${esc(chosen.time)}</p>
-          <button class="btn btn-primary btn-block" data-place ${addrs.length ? "" : "disabled"}>Place order · ${money(sub + fee)}</button>
+          <button class="btn btn-primary btn-block" data-place ${addrs.length ? "" : "disabled"}>Place order · ${money(total)}</button>
           <p class="form-hint">${icon("shield", 14)} Preview: no payment is taken. Card payment is added when checkout is connected.</p>
         </aside>
       </div>`;
@@ -298,7 +316,7 @@
         <div class="order-more" id="track-${o.id}" hidden>${st < 0 ? `<p class="empty-note">This order was cancelled.</p>` : tracker(o)}</div>
         <div class="order-more" id="rcpt-${o.id}" hidden>
           <table class="rcpt"><tbody>${Object.entries(o.items).filter(([id]) => byId[id]).map(([id, q]) => `<tr><td>${q} ×</td><td>${esc(byId[id].name)}</td><td>${money(byId[id].price * q)}</td></tr>`).join("")}</tbody>
-          <tfoot><tr><td></td><td>Subtotal</td><td>${money(o.subtotal)}</td></tr><tr><td></td><td>Delivery</td><td>${o.fee ? money(o.fee) : "Free"}</td></tr><tr class="t"><td></td><td>Total</td><td>${money(o.total)}</td></tr></tfoot></table>
+          <tfoot><tr><td></td><td>Subtotal</td><td>${money(o.subtotal)}</td></tr>${o.discount ? `<tr><td></td><td>Discount (${esc(o.code)})</td><td>−${money(o.discount)}</td></tr>` : ""}<tr><td></td><td>Delivery</td><td>${o.fee ? money(o.fee) : "Free"}</td></tr><tr class="t"><td></td><td>Total</td><td>${money(o.total)}</td></tr></tfoot></table>
         </div>
       </article>`; }).join("")}</div>`;
   };
@@ -442,6 +460,7 @@
   root.addEventListener("submit", (e) => {
     const form = e.target;
     if (form.matches("[data-addr-form]")) { e.preventDefault(); saveAddressFrom(form); }
+    else if (form.matches("[data-code-form]")) { e.preventDefault(); chosen.code = form.querySelector("input").value.trim(); route(); }
     else if (form.id === "profile-form") {
       e.preventDefault();
       const f = Object.fromEntries(new FormData(form).entries()); const err = form.querySelector(".form-error");
@@ -505,9 +524,15 @@
     Object.keys(items).forEach((id) => { if (!byId[id]) delete items[id]; });
     if (!Object.keys(items).length) return;
     const sub = Object.entries(items).reduce((s, [id, q]) => s + byId[id].price * q, 0);
-    const fee = deliveryFee(sub);
-    const order = { id: String(Date.now()).slice(-6), placed: Date.now(), items, subtotal: sub, fee, total: sub + fee, slotDate: chosen.day, slotTime: chosen.time, addressLine: `${addr.line1}, ${addr.postcode}` };
+    const disc = discountFor(chosen.code, sub);
+    const fee = deliveryFee(sub, disc.freeShip);
+    const u = getUser() || {};
+    const order = { id: String(Date.now()).slice(-6), placed: Date.now(), items, subtotal: sub, discount: disc.amount, code: disc.d ? disc.d.code : "", fee, total: Math.max(0, sub - disc.amount) + fee,
+      customer: `${u.first || ""} ${u.last || ""}`.trim(), email: u.email || "", phone: addr.phone || u.phone || "", safePlace: getPrefs().safePlace, notes: getPrefs().notes, slotDate: chosen.day, slotTime: chosen.time, addressLine: `${addr.line1}, ${addr.postcode}` };
     save("orders", [order, ...getOrders()]);
+    Object.entries(items).forEach(([id, q]) => D.adjustStock(id, -q));
+    if (disc.d) D.saveDiscounts((D.discounts || []).map((d) => (d.code === disc.d.code ? { ...d, uses: (d.uses || 0) + 1 } : d)));
+    chosen.code = "";
     btn.disabled = true;
     Object.keys(items).forEach((id) => Cart.set(id, 0));
     if (window.FL.motion) window.FL.motion.confetti(btn);

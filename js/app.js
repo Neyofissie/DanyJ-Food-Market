@@ -89,6 +89,8 @@
     count: () => Object.values(cart).reduce((a, b) => a + b, 0),
     subtotal: () => Object.entries(cart).reduce((sum, [id, q]) => sum + (byId[id] ? byId[id].price * q : 0), 0),
     set(id, q) {
+      const lim = byId[id] && byId[id].stock != null ? byId[id].stock : 99;
+      if (q > lim) { q = lim; if (lim > 0) toast(`Only ${lim} left in stock`); }
       if (q <= 0) delete cart[id]; else cart[id] = Math.min(q, 99);
       store.set("cart", cart);
       if (q > 0) {
@@ -116,8 +118,11 @@
     New: ["new", "New"],
   };
 
+  const stockState = (p) => (p.stock == null ? "in" : p.stock === 0 ? "out" : p.stock <= (S.lowStockAt || 5) ? "low" : "in");
+  const stockLabel = (p) => ({ in: "In stock", out: "Out of stock", low: `Only ${p.stock} left` }[stockState(p)]);
   const cartControl = (id) => {
     const q = Cart.qty(id);
+    if (byId[id] && byId[id].stock === 0 && !q) return `<span class="soldout">Sold out</span>`;
     if (!q) return `<button class="add-btn" data-add="${id}" aria-label="Add to basket">${icon("plus", 20)}</button>`;
     return `<div class="stepper" role="group" aria-label="Quantity">
       <button data-dec="${id}" aria-label="Decrease">${icon("minus", 16)}</button>
@@ -144,7 +149,7 @@
         </div>
       </div>
       <div class="card-foot">
-        <span class="stock">In stock</span>
+        <span class="stock ${stockState(p)}">${stockLabel(p)}</span>
         <span data-control="${p.id}">${cartControl(p.id)}</span>
       </div>
     </article>`;
@@ -306,8 +311,8 @@
         </div>`; }).join("")}`;
     foot.innerHTML = `
       <div class="sum-row"><span>Subtotal</span><span>${money(sub)}</span></div>
-      <div class="sum-row"><span>Delivery</span><span>${remaining > 0 ? "Calculated at checkout" : "Free"}</span></div>
-      <div class="sum-row total"><span>Total</span><span>${money(sub)}</span></div>
+      <div class="sum-row"><span>Delivery</span><span>${remaining > 0 ? money(S.deliveryFee) : "Free"}</span></div>
+      <div class="sum-row total"><span>Total</span><span>${money(sub + (remaining > 0 ? S.deliveryFee : 0))}</span></div>
       <button class="btn btn-primary btn-block" data-checkout>Checkout ${icon("arrow", 18)}</button>
       <p style="font-size:12.5px;color:var(--ink-3);text-align:center;margin-top:10px">${icon("clock", 13)} Order by ${esc(S.dispatchCutoff)} for next-day dispatch</p>`;
   };
@@ -343,7 +348,7 @@
           ${p.wasPrice ? `<s>${money(p.wasPrice)}</s><span class="pd-save">Save ${save}%</span>` : ""}
         </div>
         <div class="pd-chips">
-          <span>${icon("check", 15)} In stock</span>
+          <span class="${stockState(p)}">${icon(stockState(p) === "out" ? "close" : "check", 15)} ${stockLabel(p)}</span>
           <span>${icon("clock", 15)} Order by ${esc(S.dispatchCutoff)}, next-day dispatch</span>
           <span>${icon("truck", 15)} Free UK delivery over ${money(S.freeDeliveryOver)}</span>
         </div>
@@ -354,7 +359,7 @@
             <span id="pd-qty">${pdQty}</span>
             <button data-pd-qty="1" aria-label="Increase">${icon("plus", 16)}</button>
           </div>
-          <button class="btn btn-primary pd-add" data-pd-add="${id}">${icon("bag", 18)} Add to basket · <span id="pd-total">${money(p.price * pdQty)}</span></button>
+          <button class="btn btn-primary pd-add" data-pd-add="${id}" ${p.stock === 0 ? "disabled" : ""}>${icon("bag", 18)} Add to basket · <span id="pd-total">${money(p.price * pdQty)}</span></button>
         </div>
         <p class="pd-note" id="pd-note">${inBasket ? `${icon("check", 14)} ${inBasket} already in your basket` : ""}</p>
         ${more.length ? `<h4>More from ${esc(cat.name)}</h4>

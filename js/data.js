@@ -26,6 +26,8 @@
     currency: "GBP",
     freeDeliveryOver: 60,
     dispatchCutoff: "11am",
+    deliveryFee: 4.99, // charged under the free-delivery threshold (placeholder: set the real fee in Admin → Settings)
+    lowStockAt: 5,
     email: "", // add your contact email to show it in the footer
     phone: "", // add your phone number to show it in the footer
   };
@@ -262,7 +264,9 @@
         category,
         wasPrice: o.was,
         from: !!o.from,
+        tag: o.badge || "",
         badge: o.was ? "Sale" : o.badge,
+        stock: null, // null = stock not tracked
         image: o.img ? `assets/img/products/${o.img}.webp` : null,
         emoji: o.e || cat.e,
         tint: cat.tint,
@@ -283,5 +287,38 @@
       items: ["Goat Meat With Bone", "Scotch Bonnet (Ata Rodo)", "Fresh Bell Pepper (Tatashe)", "Red Onions", "Maggi Star Seasoning Cubes 400g", "Rajah Curry Powder 100g"] },
   ].map((r) => ({ ...r, emoji: r.e, items: r.items.map(slug) }));
 
-  window.DANYJ = { store, categories, products, recipes, slug };
+  /* ---------- Admin overrides ----------
+   * The admin dashboard (admin.html) saves the edited catalogue, store settings
+   * and discount codes in this browser. Until a real database is connected,
+   * they apply to the shop in the same browser only.
+   */
+  const LS = (k, fb) => { try { const v = localStorage.getItem("danyj:" + k); return v ? JSON.parse(v) : fb; } catch (e) { return fb; } };
+  const SET = (k, v) => { try { localStorage.setItem("danyj:" + k, JSON.stringify(v)); } catch (e) { /* storage full or blocked */ } };
+  const defaults = products.map((p) => ({ ...p }));
+  const normalize = (p) => {
+    const cat = categories.find((c) => c.id === p.category) || categories[0];
+    const was = Number(p.wasPrice) > Number(p.price) ? Number(p.wasPrice) : undefined;
+    return { ...p, price: Number(p.price), wasPrice: was, category: cat.id, tint: cat.tint, emoji: p.emoji || cat.e,
+      stock: p.stock === "" || p.stock == null ? null : Math.max(0, parseInt(p.stock, 10) || 0),
+      badge: was ? "Sale" : p.tag || undefined };
+  };
+  const all = (LS("catalog", null) || defaults).map(normalize);
+  Object.assign(store, LS("storeSettings", {}));
+
+  window.DANYJ = {
+    store, categories, recipes, slug, defaults, normalize,
+    products: all.filter((p) => !p.hidden),
+    allProducts: all,
+    discounts: LS("discounts", []),
+    saveCatalog(list) { SET("catalog", list.map(({ tint, badge, ...rest }) => rest)); },
+    saveDiscounts(list) { SET("discounts", list); },
+    saveStore(patch) { SET("storeSettings", { ...LS("storeSettings", {}), ...patch }); },
+    adjustStock(id, delta) {
+      const list = (LS("catalog", null) || defaults).map(normalize);
+      const p = list.find((x) => x.id === id);
+      if (!p || p.stock == null) return;
+      p.stock = Math.max(0, p.stock + delta);
+      this.saveCatalog(list);
+    },
+  };
 })();
