@@ -1,0 +1,198 @@
+<!doctype html>
+<html lang="en-GB">
+<head>
+<meta charset="utf-8">
+<title>DanyJ motion ads (source)</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Outfit:wght@500;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="ads.css">
+<style>
+  /* Motion layer. Every animation is a CSS animation with a delay; render-motion.mjs
+     pauses them and steps time frame by frame, so the videos come out identical every run.
+     Open this file in a browser to watch them play live. */
+  :root { --ease: cubic-bezier(.2, .8, .2, 1); --spring: cubic-bezier(.34, 1.56, .64, 1); }
+  @keyframes rise { from { opacity: 0; transform: translateY(46px); } to { opacity: 1; transform: none; } }
+  @keyframes fade { from { opacity: 0; } to { opacity: 1; } }
+  @keyframes pop { from { opacity: 0; transform: scale(.4); } to { opacity: 1; transform: scale(1); } }
+  @keyframes slam { from { opacity: 0; transform: scale(1.7); } to { opacity: 1; transform: scale(1); } }
+  @keyframes drop { 0% { opacity: 0; transform: translateY(-160px) rotate(-8deg); } 70% { opacity: 1; transform: translateY(10px) rotate(1deg); } 100% { transform: none; } }
+  @keyframes slide-l { from { opacity: 0; transform: translateX(160px); } to { opacity: 1; transform: none; } }
+  @keyframes zoom-out { from { transform: scale(1.18); } to { transform: scale(1); } }
+  @keyframes pulse { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.06); } }
+  @keyframes float { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-12px); } }
+  @keyframes draw { from { stroke-dashoffset: 1; } to { stroke-dashoffset: 0; } }
+  @keyframes strike { from { transform: scaleX(0); } to { transform: scaleX(1); } }
+  @keyframes sweep { from { background-size: 0% 100%; } to { background-size: 100% 100%; } }
+
+  [data-a] { animation-fill-mode: both; animation-timing-function: var(--ease); }
+  .rise { animation: rise .8s var(--ease) var(--d, 0s) both; }
+  .fade { animation: fade .8s var(--ease) var(--d, 0s) both; }
+  .pop { animation: pop .55s var(--spring) var(--d, 0s) both; }
+  .slam { animation: slam .5s var(--ease) var(--d, 0s) both; }
+  .drop { animation: drop .8s var(--ease) var(--d, 0s) both; }
+  .slide-l { animation: slide-l .75s var(--ease) var(--d, 0s) both; }
+  .cta { animation: pop .55s var(--spring) var(--d, 0s) both, pulse 1.4s ease-in-out calc(var(--d, 0s) + 1s) infinite; }
+  .line { display: block; }
+
+  /* 1 launch: Ken Burns on the photo */
+  .a1.m { background: none; }
+  .a1.m .bg { position: absolute; inset: 0; background: url(../../../assets/img/hero.webp) 70% 50% / cover no-repeat; animation: zoom-out 9s linear both; z-index: 0; }
+  .a1.m::before { z-index: 1; }
+  .a1.m .in { z-index: 2; }
+  .a1.m h1 em { display: block; }
+
+  /* 2 jollof: ticks + basket counter */
+  .a2 .it { position: relative; }
+  .a2 .tick { position: absolute; top: -12px; right: -12px; width: 50px; height: 50px; border-radius: 50%; background: var(--lime); display: grid; place-items: center; box-shadow: 0 6px 16px rgba(0,0,0,.3); }
+  .a2 .tick svg path { stroke-dasharray: 1; stroke-dashoffset: 1; animation: draw .35s var(--ease) calc(var(--d) + .2s) both; }
+  .a2 .basket { display: inline-flex; align-items: center; gap: 12px; height: 56px; padding: 0 22px; border-radius: 999px; background: rgba(255,255,255,.1); font-weight: 600; font-size: 22px; }
+  .a2 .basket b { min-width: 34px; height: 34px; border-radius: 999px; background: var(--lime); color: var(--lime-ink); display: grid; place-items: center; font-size: 20px; }
+
+  /* 3 deals: highlight sweep + strike-through drawn */
+  .a3.m h1 span { background: linear-gradient(var(--lime), var(--lime)) no-repeat left / 100% 100%; animation: sweep .7s var(--ease) .5s both; }
+  .a3.m .was { position: relative; text-decoration: none; display: inline-block; }
+  .a3.m .was i { position: absolute; left: -2px; right: -2px; top: 52%; height: 3px; background: currentColor; transform-origin: left; animation: strike .4s var(--ease) var(--d) both; }
+
+  /* 4 free delivery: floating products */
+  .a4.m .pile img { animation: float 2.6s ease-in-out var(--f, 3s) infinite; }
+
+  /* 6 drivers: real element for the photo circle so it can scale */
+  .a6.m::after { display: none; }
+  .a6.m .circle { position: absolute; right: -150px; bottom: -150px; width: 600px; height: 600px; border-radius: 50%; overflow: hidden; box-shadow: 0 0 0 26px rgba(200,240,60,.18); animation: pop .9s var(--spring) .7s both; }
+  .a6.m .circle div { position: absolute; inset: 0; background: url(../../../assets/img/hero.webp) 72% 60% / auto 130% no-repeat; animation: zoom-out 8s linear .7s both; }
+  .a6.m li i svg path { stroke-dasharray: 1; stroke-dashoffset: 1; animation: draw .4s var(--ease) calc(var(--d) + .25s) both; }
+</style>
+</head>
+<body>
+
+<template id="leaf"><svg width="34" height="34" viewBox="0 0 24 24" fill="none"><path d="M5 19c0-8 5-13 14-14 0 9-5 14-13 14M5 19l7-7" stroke="#fff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg></template>
+<template id="tick"><svg width="26" height="26" viewBox="0 0 24 24" fill="none"><path pathLength="1" d="M5 12l5 5L20 7" stroke="#1d2a0c" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/></svg></template>
+
+<!-- 1. Launch -->
+<section class="ad sq a1 m" id="motion-01-launch-square" data-duration="8">
+  <div class="bg"></div>
+  <div class="in">
+    <div class="logo fade" style="--d:.2s"><span class="mark" data-leaf></span><span>DanyJ<small>Food Market</small></span></div>
+    <h1><span class="line rise" style="--d:.5s">A taste of</span><span class="line rise" style="--d:.7s">home,</span><em class="rise" style="--d:.9s">delivered.</em></h1>
+    <p class="rise" style="--d:1.5s">Rice, yam, egusi, palm oil and fresh peppers from African stores across Scotland, brought to your door.</p>
+    <div class="foot"><span class="pill cta" style="--d:2.2s">Order now →</span><span class="chip slide-l" style="--d:2.5s">Free delivery over £60</span></div>
+  </div>
+</section>
+
+<!-- 2. Jollof -->
+<section class="ad sq a2 m" id="motion-02-jollof-square" data-duration="9">
+  <div class="top"><div class="logo light fade" style="--d:.1s"><span class="mark" data-leaf></span><span>DanyJ<small>Food Market</small></span></div>
+    <span class="basket pop" style="--d:.4s">Basket <b data-steps="2.8,0.2,8">0</b></span></div>
+  <h1><span class="rise" style="--d:.3s;display:inline-block">Jollof night,</span> <em class="rise" style="--d:.5s;display:inline-block">sorted.</em></h1>
+  <div class="sub rise" style="--d:.8s">All 8 ingredients, one basket, one delivery.</div>
+  <div class="grid">
+    <div class="it pop" style="--d:1.2s"><i class="tick pop" style="--d:2.8s" data-tick></i><img class="cut" src="../../../assets/img/products/long-grain-rice.webp"><b>Long Grain Rice</b><span class="price">£5.49</span></div>
+    <div class="it pop" style="--d:1.32s"><i class="tick pop" style="--d:3.0s" data-tick></i><img class="cut" src="../../../assets/img/products/gino-tomato-paste-400g.webp"><b>Gino Tomato Paste 400g</b><span class="price">£2.99</span></div>
+    <div class="it pop" style="--d:1.44s"><i class="tick pop" style="--d:3.2s" data-tick></i><img class="cut" src="../../../assets/img/products/tinned-plum-tomatoes-400g.webp"><b>Plum Tomatoes 400g</b><span class="price">£0.89</span></div>
+    <div class="it pop" style="--d:1.56s"><i class="tick pop" style="--d:3.4s" data-tick></i><img class="cut" src="../../../assets/img/products/scotch-bonnet-box.webp"><b>Scotch Bonnet (Ata Rodo)</b><span class="price">£4.99</span></div>
+    <div class="it pop" style="--d:1.68s"><i class="tick pop" style="--d:3.6s" data-tick></i><img class="cut" src="../../../assets/img/products/bell-pepper-box.webp"><b>Bell Pepper (Tatashe)</b><span class="price">£3.49</span></div>
+    <div class="it pop" style="--d:1.80s"><i class="tick pop" style="--d:3.8s" data-tick></i><img class="cut" src="../../../assets/img/products/red-onion-sack.webp"><b>Red Onions</b><span class="price">£1.99</span></div>
+    <div class="it pop" style="--d:1.92s"><i class="tick pop" style="--d:4.0s" data-tick></i><img class="cut" src="../../../assets/img/products/maggi-star-seasoning-cubes-400g.webp"><b>Maggi Star Cubes 400g</b><span class="price">£2.99</span></div>
+    <div class="it pop" style="--d:2.04s"><i class="tick pop" style="--d:4.2s" data-tick></i><img class="cut" src="../../../assets/img/products/rajah-curry-powder-100g.webp"><b>Rajah Curry Powder</b><span class="price">£1.99</span></div>
+  </div>
+  <div class="bottom"><div class="total rise" style="--d:4.4s">The lot for <span class="price" data-count="24.82" data-at="4.6" data-for="1.2" data-pre="£">£24.82</span></div><span class="pill cta" style="--d:5.6s">Shop the recipe →</span></div>
+</section>
+
+<!-- 3. Deals -->
+<section class="ad sq a3 m" id="motion-03-deals-square" data-duration="8">
+  <div class="top"><div class="logo fade" style="--d:.1s"><span class="mark" data-leaf></span><span>DanyJ<small>Food Market</small></span></div><span class="chip pop" style="--d:.3s;background:var(--green-ink);color:var(--lime)">This week only</span></div>
+  <h1 class="rise" style="--d:.2s"><span>Deals</span> of the week</h1>
+  <div class="grid">
+    <div class="card rise" style="--d:1.0s"><span class="save pop" style="--d:2.5s">Save £4</span><img class="cut" src="../../../assets/img/products/soft-smoked-panla.webp"><div><b>Soft Smoked Panla</b><span class="price pop" style="--d:2.3s">£15.99</span><span class="was">£19.99<i style="--d:2.0s"></i></span></div></div>
+    <div class="card rise" style="--d:1.15s"><span class="save pop" style="--d:2.75s">Save £3</span><img class="cut" src="../../../assets/img/products/scotch-bonnet-box.webp"><div><b>Scotch Bonnet (Ata Rodo)</b><span class="price pop" style="--d:2.55s">£4.99</span><span class="was">£7.99<i style="--d:2.25s"></i></span></div></div>
+    <div class="card rise" style="--d:1.3s"><span class="save pop" style="--d:3.0s">Save £1</span><img class="cut" src="../../../assets/img/products/puff-puff-mix.webp"><div><b>Puff Puff Mix 650g</b><span class="price pop" style="--d:2.8s">£4.50</span><span class="was">£5.50<i style="--d:2.5s"></i></span></div></div>
+    <div class="card rise" style="--d:1.45s"><span class="save pop" style="--d:3.25s">Save £1</span><img class="cut" src="../../../assets/img/products/cameroon-pepper-400g.webp"><div><b>Cameroon Pepper 400g</b><span class="price pop" style="--d:3.05s">£9.99</span><span class="was">£10.99<i style="--d:2.75s"></i></span></div></div>
+  </div>
+  <div class="foot"><span class="fine fade" style="--d:3.6s">While stocks last.</span><span class="pill cta" style="--d:3.8s">Grab the deals →</span></div>
+</section>
+
+<!-- 4. Free delivery story -->
+<section class="ad story a4 m" id="motion-04-free-delivery-story" data-duration="9">
+  <div class="logo fade" style="--d:.1s"><span class="mark" data-leaf></span><span>DanyJ<small>Food Market</small></span></div>
+  <div class="kicker rise" style="--d:.3s">Fill your basket. We'll bring it home.</div>
+  <h1 style="transform-origin:left"><span class="line slam" style="--d:.7s;font-size:inherit;transform-origin:left">Free</span><span class="line slam" style="--d:1.0s;font-size:inherit;transform-origin:left">delivery</span><span class="slam" style="--d:1.35s;transform-origin:left">over £60</span></h1>
+  <div class="pile">
+    <div class="drop" style="--d:1.9s"><img class="cut" style="--f:3.2s" src="../../../assets/img/products/golden-sella-basmati-rice.webp"></div>
+    <div class="drop" style="--d:2.05s"><img class="cut" style="--f:3.5s" src="../../../assets/img/products/yam-tuber-approx-3-5kg.webp"></div>
+    <div class="drop" style="--d:2.2s"><img class="cut" style="--f:3.8s" src="../../../assets/img/products/unripe-plantain-x1.webp"></div>
+    <div class="drop" style="--d:2.35s"><img class="cut" style="--f:3.35s" src="../../../assets/img/products/palm-oil.webp"></div>
+    <div class="drop" style="--d:2.5s"><img class="cut" style="--f:3.65s" src="../../../assets/img/products/ground-egusi-melon.webp"></div>
+    <div class="drop" style="--d:2.65s"><img class="cut" style="--f:3.95s" src="../../../assets/img/products/yellow-garri.webp"></div>
+  </div>
+  <div class="tag rise" style="--d:3.2s">Your African grocery shop, from stores across Scotland, delivered.</div>
+  <div class="bottom"><span class="pill cta" style="--d:3.6s">Tap to shop →</span></div>
+</section>
+
+<!-- 5. Stock up story -->
+<section class="ad story a5 m" id="motion-05-stock-up-story" data-duration="9">
+  <div class="logo light fade" style="--d:.1s"><span class="mark" data-leaf></span><span>DanyJ<small>Food Market</small></span></div>
+  <h1><span class="line rise" style="--d:.3s">Stock up <em>once.</em></span><span class="line rise" style="--d:.55s">Eat well all</span><span class="line rise" style="--d:.8s">month.</span></h1>
+  <div class="sub rise" style="--d:1.2s">Wholesale boxes for big families, parties and freezers.</div>
+  <div class="list">
+    <div class="row slide-l" style="--d:1.6s"><span class="ph"><img class="cut" src="../../../assets/img/products/goat-box.webp"></span><div><b>Goat Meat Box</b><small>5kg</small></div><span class="price" data-count="59.99" data-at="1.9" data-for=".9" data-pre="£">£59.99</span></div>
+    <div class="row slide-l" style="--d:1.8s"><span class="ph"><img class="cut" src="../../../assets/img/products/indomie-box.webp"></span><div><b>Indomie Wholesale</b><small>4 boxes</small></div><span class="price" data-count="33.99" data-at="2.1" data-for=".9" data-pre="£">£33.99</span></div>
+    <div class="row slide-l" style="--d:2.0s"><span class="ph"><img class="cut" src="../../../assets/img/products/scotch-bonnet-box.webp"></span><div><b>Scotch Bonnet Box</b><small>5kg</small></div><span class="price" data-count="28.99" data-at="2.3" data-for=".9" data-pre="£">£28.99</span></div>
+    <div class="row slide-l" style="--d:2.2s"><span class="ph"><img class="cut" src="../../../assets/img/products/catfish-box.webp"></span><div><b>Catfish Box</b><small>5kg</small></div><span class="price" data-count="24.99" data-at="2.5" data-for=".9" data-pre="£">£24.99</span></div>
+  </div>
+  <div class="bottom"><span class="pill cta" style="--d:3.4s">Shop box deals →</span><span class="fade" style="--d:3.7s;font-size:28px;color:#a9b7ac">Free delivery over £60</span></div>
+</section>
+
+<!-- 6. Drivers -->
+<section class="ad sq a6 m" id="motion-06-drivers-square" data-duration="8">
+  <div class="circle"><div></div></div>
+  <div class="logo light fade" style="--d:.1s"><span class="mark" data-leaf></span><span>DanyJ<small>Food Market</small></span></div>
+  <span class="chip pop" style="--d:.3s">We're hiring drivers</span>
+  <h1 class="rise" style="--d:.5s">Drive with DanyJ</h1>
+  <ul>
+    <li class="rise" style="--d:1.3s"><i class="pop" style="--d:1.45s" data-tick></i>Choose your own hours</li>
+    <li class="rise" style="--d:1.7s"><i class="pop" style="--d:1.85s" data-tick></i>Paid per delivery, every week</li>
+    <li class="rise" style="--d:2.1s"><i class="pop" style="--d:2.25s" data-tick></i>Serve your own community</li>
+  </ul>
+  <div class="bottom"><span class="pill cta" style="--d:2.9s">Apply now →</span><span class="small fade" style="--d:3.2s">Own car, UK licence and courier insurance needed.</span></div>
+</section>
+
+<script>
+  const leaf = document.getElementById("leaf").innerHTML;
+  const tick = document.getElementById("tick").innerHTML;
+  document.querySelectorAll("[data-leaf]").forEach((el) => (el.innerHTML = leaf));
+  document.querySelectorAll("[data-tick]").forEach((el) => (el.innerHTML = tick));
+
+  // Counters driven by time, so they work both live and when frames are stepped.
+  const ease = (x) => 1 - Math.pow(1 - x, 3);
+  function paintCounters(root, t) {
+    root.querySelectorAll("[data-count]").forEach((el) => {
+      const to = +el.dataset.count, at = +el.dataset.at, dur = +el.dataset.for;
+      const k = Math.min(1, Math.max(0, (t - at) / dur));
+      el.textContent = (el.dataset.pre || "") + (to * ease(k)).toFixed(2);
+    });
+    root.querySelectorAll("[data-steps]").forEach((el) => {
+      const [start, step, n] = el.dataset.steps.split(",").map(Number);
+      el.textContent = Math.max(0, Math.min(n, Math.floor((t - start) / step) + 1));
+    });
+  }
+
+  // Step one ad to time t (seconds): used by render-motion.mjs.
+  window.seek = (id, t) => {
+    const root = document.getElementById(id);
+    for (const a of root.getAnimations({ subtree: true })) { a.pause(); a.currentTime = t * 1000; }
+    paintCounters(root, t);
+  };
+
+  // Live preview in a browser: loop each ad on its own duration.
+  if (!navigator.webdriver) {
+    const t0 = performance.now();
+    (function loop() {
+      document.querySelectorAll("section.ad").forEach((s) => {
+        const d = +s.dataset.duration, t = ((performance.now() - t0) / 1000) % d;
+        window.seek(s.id, t);
+      });
+      requestAnimationFrame(loop);
+    })();
+  }
+</script>
+</body>
+</html>

@@ -47,9 +47,33 @@ Story ads keep text and buttons out of the top ~200px and bottom ~250px, which t
 - Ad 06 promises weekly per-delivery pay and free choice of hours, as set out in the business case. Only post it once that's how drivers will really be paid.
 - "Free delivery over £60" matches Admin → Settings. If you change the threshold there, edit the ads too.
 
+## Motion versions (MP4)
+
+Animated versions of six of the ads are in `motion/`. They're 30 fps H.264 MP4 videos, which upload straight to Instagram Reels and Stories, TikTok, Facebook and WhatsApp Status.
+
+| File | Length | What moves |
+|---|---|---|
+| `motion/01-launch-square.mp4` | 8s | Slow zoom on the basket photo, the headline rises line by line, and the button pops and pulses |
+| `motion/02-jollof-square.mp4` | 9s | The 8 ingredients pop in, each gets ticked into the basket (the counter goes 0 → 8), then the total counts up to £24.82 |
+| `motion/03-deals-square.mp4` | 8s | A highlight sweeps across "Deals", cards rise, the old prices get struck through, and the new prices and "Save" badges pop in |
+| `motion/04-free-delivery-story.mp4` | 9s | "Free / delivery / over £60" slams in, the products drop into place and float |
+| `motion/05-stock-up-story.mp4` | 9s | The headline rises, the box deals slide in, and the prices count up |
+| `motion/06-drivers-square.mp4` | 8s | The photo circle springs in, and the ticks draw themselves next to each benefit |
+
+The videos have no sound. Add a trending track inside Instagram or TikTok when you post, as the apps' licensed music is safest.
+
+They're built from `src/motion.html`, which uses the same layout as the still ads plus CSS animations. Open it in a browser to watch them loop live. To re-render after a change:
+
+```
+node marketing/ads/src/render-motion.mjs            # all six
+node marketing/ads/src/render-motion.mjs jollof     # just one
+```
+
+This steps the animations frame by frame and needs `ffmpeg` on your PATH as well as Playwright.
+
 ## Editing and re-rendering
 
-The designs are plain HTML in `src/ads.html` (one `<section class="ad">` per image). Change the words, prices or photos there, then run:
+The designs are plain HTML in `src/ads.html`, with the styles in `src/ads.css` (one `<section class="ad">` per image). Change the words, prices or photos there, then run:
 
 ```
 node marketing/ads/src/render.mjs
