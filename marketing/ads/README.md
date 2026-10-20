@@ -71,6 +71,26 @@ node marketing/ads/src/render-motion.mjs jollof     # just one
 
 This steps the animations frame by frame and needs `ffmpeg` on your PATH as well as Playwright.
 
+### App ad (`motion/07-app-story.mp4`, 1080×1920, 17s)
+
+This ad shows a phone with the real mobile shop playing on screen:
+
+1. "Your African grocery shop, in your pocket" as the phone flies in.
+2. A real scroll down the home page.
+3. Tap a product, tap "Add to basket", and the rice bag flies into the basket.
+4. The basket, then checkout scrolling to the delivery slots. Picking a day and an evening slot.
+5. Order tracking, with "Dispatched" pulsing.
+6. End card: "Shop from your phone", "Order now", and free delivery over £60.
+
+The phone is a Pro Max–style frame drawn in CSS (titanium edge, small Dynamic Island, side buttons). It isn't an Apple image and it doesn't say "iPhone", so the ad avoids Apple's trademark rules. Don't add App Store or Google Play badges until there's a real app in those stores. Today the "app" is the mobile website.
+
+The screens are captured from the site itself, with a demo shopper ("Ada", Glasgow) and a demo basket and order. To rebuild after the site changes:
+
+```
+node marketing/ads/src/capture-app.mjs                  # screenshots + scroll frames into src/screens/ (git-ignored)
+node marketing/ads/src/render-motion.mjs app-ad.html    # renders motion/07-app-story.mp4 (~6 min)
+```
+
 ## Editing and re-rendering
 
 The designs are plain HTML in `src/ads.html` (one `<section class="ad">` per image), with the styles in `src/ads.css`. Change the words, prices or photos there, then run:

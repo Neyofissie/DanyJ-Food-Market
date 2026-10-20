@@ -1,0 +1,181 @@
+<!doctype html>
+<html lang="en-GB">
+<head>
+<meta charset="utf-8">
+<title>DanyJ app ad (source)</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Outfit:wght@500;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="ads.css">
+<script src="screens/meta.js"></script>
+<style>
+  /* App promo: real screens of the mobile site (captured by capture-app.mjs) playing inside
+     a Pro Max-style phone drawn in CSS. Timings are CSS animation delays; render-motion.mjs
+     steps them frame by frame. Phone internals use the site's own CSS px (screen 440×956). */
+  :root { --ease: cubic-bezier(.2, .8, .2, 1); --spring: cubic-bezier(.34, 1.56, .64, 1); }
+  @keyframes rise { from { opacity: 0; transform: translateY(46px); } to { opacity: 1; transform: none; } }
+  @keyframes fade { from { opacity: 0; } to { opacity: 1; } }
+  @keyframes pop { from { opacity: 0; transform: scale(.4); } to { opacity: 1; transform: scale(1); } }
+  @keyframes pulse { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.06); } }
+  @keyframes cap-in { from { opacity: 0; transform: translateY(40px); } to { opacity: 1; transform: none; } }
+  @keyframes cap-out { from { opacity: 1; transform: none; } to { opacity: 0; transform: translateY(-30px); } }
+  @keyframes phone-in { from { transform: translateY(1400px) rotate(-10deg); } to { transform: none; } }
+  @keyframes bob { 0%, 100% { transform: translateY(0) rotate(0); } 50% { transform: translateY(-10px) rotate(.6deg); } }
+  @keyframes slide-in { from { transform: translateX(100%); } to { transform: none; } }
+  @keyframes sheet-in { from { opacity: 0; transform: translateY(60px); } to { opacity: 1; transform: none; } }
+  @keyframes tap { 0% { opacity: 0; transform: translate(-50%, -50%) scale(.5); } 25% { opacity: 1; } 100% { opacity: 0; transform: translate(-50%, -50%) scale(1.6); } }
+  @keyframes fly-x { from { transform: translateX(0); } to { transform: translateX(var(--dx)); } }
+  @keyframes fly-y { 0% { transform: translateY(0) scale(1); opacity: 1; } 40% { transform: translateY(-160px) scale(1.15); } 100% { transform: translateY(var(--dy)) scale(.35); opacity: .9; } }
+  @keyframes plus { 0% { opacity: 0; transform: translate(-50%, 0) scale(.5); } 30% { opacity: 1; transform: translate(-50%, -30px) scale(1); } 100% { opacity: 0; transform: translate(-50%, -70px); } }
+  @keyframes ring { 0% { opacity: 0; transform: translate(-50%, -50%) scale(.6); } 8% { opacity: .9; } 100% { opacity: 0; transform: translate(-50%, -50%) scale(2.6); } }
+  @keyframes shown { from { opacity: 1; } to { opacity: 1; } }
+  @keyframes drift { 0%, 100% { transform: translateY(0) rotate(var(--r)); } 50% { transform: translateY(-22px) rotate(calc(var(--r) + 4deg)); } }
+
+  .ad.app { width: 1080px; height: 1920px; background: radial-gradient(circle at 50% 66%, rgba(200,240,60,.22), rgba(200,240,60,0) 42%), linear-gradient(180deg, #183a21 0%, #10281a 100%); color: #fff; }
+
+  /* captions: one group per scene */
+  .cap { position: absolute; left: 80px; right: 80px; top: 210px; animation: cap-in .55s var(--ease) var(--in) both, cap-out .35s var(--ease) var(--out) forwards; }
+  .cap .step { display: inline-flex; align-items: center; gap: 14px; font-weight: 600; font-size: 26px; color: var(--lime); letter-spacing: .06em; text-transform: uppercase; }
+  .cap .step b { width: 52px; height: 52px; border-radius: 50%; background: var(--lime); color: var(--lime-ink); display: grid; place-items: center; font-family: "Outfit", sans-serif; font-size: 24px; letter-spacing: 0; }
+  .cap h1 { font-size: 96px; font-weight: 800; margin: 26px 0 18px; }
+  .cap h1 em { font-style: normal; color: var(--lime); }
+  .cap p { font-size: 32px; color: #c9dbc9; }
+  .cap.intro h1 { font-size: 92px; margin-top: 34px; }
+  .cap.end { animation: cap-in .6s var(--ease) var(--in) both; }
+  .cap.end .row { display: flex; align-items: center; gap: 28px; margin-top: 34px; }
+  .cap.end .row > span:not(.pill) { font-size: 26px; color: #c9dbc9; font-weight: 500; }
+
+  /* floating groceries behind the phone */
+  .float { position: absolute; width: 250px; height: 250px; object-fit: contain; filter: drop-shadow(0 20px 26px rgba(0,0,0,.35)); animation: fade .8s var(--ease) var(--d) both, drift 5s ease-in-out var(--d) infinite; }
+
+  /* phone: Pro Max proportions, titanium frame, small Dynamic Island */
+  .stage { position: absolute; left: 50%; top: 640px; width: 468px; height: 984px; margin-left: -234px; transform-origin: 50% 0; transform: scale(1.25); }
+  .enter { animation: phone-in 1.3s var(--ease) .7s both; }
+  .bob { animation: bob 6s ease-in-out 2s infinite; }
+  .phone { position: relative; width: 468px; height: 984px; border-radius: 76px; padding: 14px; background: linear-gradient(140deg, #5b5f66 0%, #24262a 18%, #3b3e44 50%, #1c1d20 80%, #4a4d53 100%); box-shadow: inset 0 0 0 1.5px rgba(255,255,255,.25), inset 0 0 0 5px #0b0c0d, 0 50px 90px rgba(0,0,0,.5), 0 0 0 1px rgba(0,0,0,.6); }
+  .btn-side { position: absolute; width: 5px; border-radius: 3px; background: linear-gradient(90deg, #2a2c30, #5a5d63); }
+  .screen { position: relative; width: 440px; height: 956px; border-radius: 62px; overflow: hidden; background: #f8f5ee; isolation: isolate; }
+  .status { position: absolute; inset: 0 0 auto; height: 54px; background: #183a21; color: #fff; z-index: 20; display: flex; align-items: center; justify-content: space-between; padding: 6px 34px 0 52px; font-weight: 600; font-size: 17px; letter-spacing: -.01em; }
+  .island { position: absolute; top: 12px; left: 50%; width: 112px; height: 34px; margin-left: -56px; border-radius: 20px; background: #000; z-index: 21; }
+  .home-ind { position: absolute; bottom: 8px; left: 50%; width: 150px; height: 5px; margin-left: -75px; border-radius: 3px; background: rgba(0,0,0,.75); z-index: 22; }
+  .layer { position: absolute; left: 0; top: 54px; width: 440px; height: 902px; }
+  .layer img { width: 440px; height: 902px; display: block; }
+  .l-slide { animation: slide-in .5s var(--ease) var(--d) both; box-shadow: -20px 0 40px rgba(0,0,0,.15); }
+  .l-sheet { animation: sheet-in .4s var(--ease) var(--d) both; }
+  .l-cut { animation: fade .01s linear var(--d) both; }
+  .tap { position: absolute; width: 64px; height: 64px; border-radius: 50%; background: rgba(255,255,255,.55); border: 3px solid rgba(24,58,33,.55); z-index: 30; animation: tap .55s ease-out var(--d) both; }
+  .fly { position: absolute; z-index: 31; opacity: 0; animation: fly-x .7s linear var(--d) both, shown .7s linear var(--d) none; }
+  .fly div { animation: fly-y .7s cubic-bezier(.3, 0, .6, 1) var(--d) both; }
+  .fly img { width: 90px; height: 90px; margin: -45px 0 0 -45px; display: block; filter: drop-shadow(0 8px 10px rgba(0,0,0,.25)); }
+  .plus { position: absolute; z-index: 32; background: var(--lime); color: var(--lime-ink); font-weight: 800; font-family: "Outfit", sans-serif; font-size: 22px; padding: 4px 12px; border-radius: 999px; animation: plus .8s var(--ease) var(--d) both; }
+  .ringfx { position: absolute; width: 40px; height: 40px; border-radius: 50%; border: 4px solid var(--lime); z-index: 30; animation: ring 1s ease-out var(--d) 2 both; }
+  .cta { animation: pop .55s var(--spring) var(--d, 0s) both, pulse 1.4s ease-in-out calc(var(--d, 0s) + 1s) infinite; }
+</style>
+</head>
+<body>
+
+<template id="leaf"><svg width="34" height="34" viewBox="0 0 24 24" fill="none"><path d="M5 19c0-8 5-13 14-14 0 9-5 14-13 14M5 19l7-7" stroke="#fff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg></template>
+
+<section class="ad app" id="motion-07-app-story" data-duration="17">
+  <!-- groceries floating behind the phone -->
+  <img class="float" src="../../../assets/img/products/unripe-plantain-x1.webp" style="left:-30px;top:760px;--r:-18deg;--d:1.4s">
+  <img class="float" src="../../../assets/img/products/golden-sella-basmati-rice.webp" style="right:-20px;top:860px;--r:12deg;--d:1.6s">
+  <img class="float" src="../../../assets/img/products/yellow-garri.webp" style="left:-10px;top:1420px;--r:10deg;--d:1.8s">
+  <img class="float" src="../../../assets/img/products/maggi-star-seasoning-cubes-400g.webp" style="right:-10px;top:1500px;--r:-10deg;--d:2.0s">
+
+  <!-- captions -->
+  <div class="cap intro" style="--in:.2s;--out:2.4s">
+    <div class="logo light"><span class="mark" data-leaf></span><span>DanyJ<small>Food Market</small></span></div>
+    <h1>Your African grocery shop, <em>in your pocket.</em></h1>
+  </div>
+  <div class="cap" style="--in:2.6s;--out:4.8s"><span class="step"><b>1</b>Browse</span><h1>190+ <em>groceries</em></h1><p>From African stores across Scotland.</p></div>
+  <div class="cap" style="--in:5.0s;--out:7.9s"><span class="step"><b>2</b>Add</span><h1>Add in <em>one tap</em></h1><p>Rice, egusi, palm oil, fresh meat and more.</p></div>
+  <div class="cap" style="--in:8.1s;--out:11.9s"><span class="step"><b>3</b>Checkout</span><h1>Pick your <em>delivery slot</em></h1><p>Morning, afternoon or evening.</p></div>
+  <div class="cap" style="--in:12.1s;--out:13.6s"><span class="step"><b>4</b>Track</span><h1>Track it <em>to your door</em></h1><p>See when it's packed and on its way.</p></div>
+  <div class="cap end" style="--in:13.9s">
+    <div class="logo light"><span class="mark" data-leaf></span><span>DanyJ<small>Food Market</small></span></div>
+    <h1>Shop from <em>your phone.</em></h1>
+    <div class="row"><span class="pill cta" style="--d:14.5s">Order now →</span><span>Free delivery over £60</span></div>
+  </div>
+
+  <!-- the phone -->
+  <div class="stage"><div class="enter"><div class="bob">
+    <div class="phone">
+      <i class="btn-side" style="left:-4px;top:190px;height:46px"></i>
+      <i class="btn-side" style="left:-4px;top:268px;height:84px"></i>
+      <i class="btn-side" style="left:-4px;top:370px;height:84px"></i>
+      <i class="btn-side" style="right:-4px;top:300px;height:130px"></i>
+      <i class="btn-side" style="right:-4px;top:640px;height:70px;opacity:.8"></i>
+      <div class="screen" id="screen">
+        <div class="status"><span>9:41</span>
+          <svg width="78" height="16" viewBox="0 0 78 16" fill="#fff"><rect x="0" y="10" width="3.5" height="5" rx="1"/><rect x="5.5" y="7" width="3.5" height="8" rx="1"/><rect x="11" y="4" width="3.5" height="11" rx="1"/><rect x="16.5" y="1" width="3.5" height="14" rx="1"/><path d="M33 4.5a10 10 0 0 1 13 0l-1.6 1.7a7.6 7.6 0 0 0-9.8 0zM35.5 7.4a6.4 6.4 0 0 1 8 0l-1.6 1.7a4 4 0 0 0-4.8 0zM39.5 14l-2.2-2.4a3.2 3.2 0 0 1 4.4 0z"/><rect x="52" y="2.5" width="22" height="11" rx="3.2" fill="none" stroke="#fff" stroke-opacity=".5"/><rect x="54" y="4.5" width="16" height="7" rx="1.6"/><rect x="75.5" y="6" width="1.8" height="4" rx=".9" fill-opacity=".5"/></svg>
+        </div>
+        <div class="island"></div>
+
+        <div class="layer"><img data-seq="home-scroll" data-at="2.8" src="screens/home-scroll/000.png"></div>
+        <div class="layer l-slide" style="--d:5.0s"><img src="screens/shop.png"></div>
+        <div class="layer l-sheet" style="--d:6.1s"><img src="screens/product.png"></div>
+        <div class="layer l-sheet" style="--d:8.0s"><img src="screens/basket.png"></div>
+        <div class="layer l-slide" style="--d:9.1s"><img data-seq="checkout-scroll" data-at="9.7" src="screens/checkout-scroll/000.png"></div>
+        <div class="layer l-cut" style="--d:11.05s"><img src="screens/checkout-day.png"></div>
+        <div class="layer l-cut" style="--d:11.55s"><img src="screens/checkout-picked.png"></div>
+        <div class="layer l-slide" style="--d:12.1s"><img src="screens/tracking.png"></div>
+
+        <!-- taps and effects, placed from meta.js -->
+        <i class="tap" data-at-el="tilda" style="--d:5.75s"></i>
+        <i class="tap" data-at-el="add" style="--d:6.85s"></i>
+        <div class="fly" data-at-el="add" style="--d:7.0s"><div><img src="../../../assets/img/products/tilda-golden-sella-basmati-rice.webp"></div></div>
+        <span class="plus" data-at-el="basketTab" style="--d:7.6s">+1</span>
+        <i class="tap" data-at-el="checkout" style="--d:8.75s"></i>
+        <i class="tap" data-at-el="slotDay" style="--d:10.9s"></i>
+        <i class="tap" data-at-el="slotTime" style="--d:11.4s"></i>
+        <i class="ringfx" data-at-el="dispatched" style="--d:12.8s"></i>
+        <div class="home-ind"></div>
+      </div>
+    </div>
+  </div></div></div>
+</section>
+
+<script>
+  const M = window.SCREEN_META;
+  const leaf = document.getElementById("leaf").innerHTML;
+  document.querySelectorAll("[data-leaf]").forEach((el) => (el.innerHTML = leaf));
+
+  // Put taps and effects on the real button positions (page coords + 54px status bar).
+  document.querySelectorAll("[data-at-el]").forEach((el) => {
+    const p = M[el.dataset.atEl];
+    el.style.left = p.x + "px";
+    el.style.top = p.y + 54 + "px";
+  });
+  const fly = document.querySelector(".fly");
+  fly.style.setProperty("--dx", M.basketTab.x - M.add.x + "px");
+  fly.style.setProperty("--dy", M.basketTab.y - M.add.y + "px");
+
+  // Real scroll recordings: one captured frame per video frame.
+  const pad = (n) => String(n).padStart(3, "0");
+  async function paintSeqs(t) {
+    const waits = [];
+    document.querySelectorAll("[data-seq]").forEach((img) => {
+      const n = M.seq[img.dataset.seq], i = Math.max(0, Math.min(n - 1, Math.round((t - +img.dataset.at) * M.fps)));
+      const src = `screens/${img.dataset.seq}/${pad(i)}.png`;
+      if (!img.src.endsWith(src)) { img.src = src; waits.push(img.decode().catch(() => {})); }
+    });
+    await Promise.all(waits);
+  }
+
+  window.seek = async (id, t) => {
+    const root = document.getElementById(id);
+    for (const a of root.getAnimations({ subtree: true })) { a.pause(); a.currentTime = t * 1000; }
+    await paintSeqs(t);
+  };
+
+  // Live preview when opened in a browser.
+  if (!navigator.webdriver) {
+    const t0 = performance.now();
+    (async function loop() {
+      const s = document.querySelector("section.ad");
+      await window.seek(s.id, ((performance.now() - t0) / 1000) % +s.dataset.duration);
+      requestAnimationFrame(loop);
+    })();
+  }
+</script>
+</body>
+</html>
