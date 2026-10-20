@@ -73,7 +73,7 @@ This steps the animations frame by frame and needs `ffmpeg` on your PATH as well
 
 ## Editing and re-rendering
 
-The designs are plain HTML in `src/ads.html`, with the styles in `src/ads.css` (one `<section class="ad">` per image). Change the words, prices or photos there, then run:
+The designs are plain HTML in `src/ads.html` (one `<section class="ad">` per image), with the styles in `src/ads.css`. Change the words, prices or photos there, then run:
 
 ```
 node marketing/ads/src/render.mjs
