@@ -1047,17 +1047,18 @@ p { margin: 0; }
 .order-mini { display: flex; justify-content: space-between; align-items: center; gap: 12px; flex-wrap: wrap; margin-bottom: 18px; }
 .order-mini b { display: block; }
 .order-mini span { font-size: 13px; color: var(--ink-3); }
-.track { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(4, 1fr); position: relative; }
-.track li { position: relative; display: flex; flex-direction: column; align-items: center; text-align: center; gap: 6px; font-size: 13px; color: var(--ink-3); }
-.track li::before { content: ""; position: absolute; top: 13px; left: -50%; width: 100%; height: 3px; background: var(--line); z-index: 0; }
-.track li:first-child::before { display: none; }
-.track li.done::before, .track li.now::before { background: var(--green); }
-.track .dot { position: relative; z-index: 1; width: 28px; height: 28px; border-radius: 50%; background: var(--surface); border: 3px solid var(--line); display: grid; place-items: center; color: #fff; }
-.track li.done .dot { background: var(--green); border-color: var(--green); }
-.track li.now .dot { background: var(--lime); border-color: var(--green); color: var(--lime-ink); box-shadow: 0 0 0 6px rgba(200, 240, 60, .35); animation: pulse 2s infinite; }
-.track b { font-weight: 600; color: var(--ink-2); }
-.track li.now b { color: var(--green-ink); }
-.track em { font-style: normal; font-size: 12px; color: var(--green); font-weight: 600; }
+/* (named .order-track, not .track: .track is the home-page carousel class) */
+.order-track { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(4, 1fr); position: relative; }
+.order-track li { position: relative; display: flex; flex-direction: column; align-items: center; text-align: center; gap: 6px; font-size: 13px; color: var(--ink-3); }
+.order-track li::before { content: ""; position: absolute; top: 13px; left: -50%; width: 100%; height: 3px; background: var(--line); z-index: 0; }
+.order-track li:first-child::before { display: none; }
+.order-track li.done::before, .order-track li.now::before { background: var(--green); }
+.order-track .dot { position: relative; z-index: 1; width: 28px; height: 28px; border-radius: 50%; background: var(--surface); border: 3px solid var(--line); display: grid; place-items: center; color: #fff; }
+.order-track li.done .dot { background: var(--green); border-color: var(--green); }
+.order-track li.now .dot { background: var(--lime); border-color: var(--green); color: var(--lime-ink); box-shadow: 0 0 0 6px rgba(200, 240, 60, .35); animation: pulse 2s infinite; }
+.order-track b { font-weight: 600; color: var(--ink-2); }
+.order-track li.now b { color: var(--green-ink); }
+.order-track em { font-style: normal; font-size: 12px; color: var(--green); font-weight: 600; }
 @keyframes pulse { 50% { box-shadow: 0 0 0 10px rgba(200, 240, 60, .1); } }
 
 .status { display: inline-flex; align-items: center; gap: 6px; padding: 5px 12px; border-radius: 999px; font-size: 12.5px; font-weight: 600; white-space: nowrap; }
@@ -1225,8 +1226,8 @@ p { margin: 0; }
 }
 @media (max-width: 640px) {
   .form-row.two { grid-template-columns: 1fr; }
-  .track b { font-size: 11.5px; }
-  .track em { font-size: 11px; }
+  .order-track b { font-size: 11.5px; }
+  .order-track em { font-size: 11px; }
   .bl-row { grid-template-columns: 56px minmax(0, 1fr) auto; }
   .bl-media .thumb { width: 56px; height: 56px; }
   .bl-price { grid-column: 2; text-align: left; font-size: 14px; margin-top: -8px; }

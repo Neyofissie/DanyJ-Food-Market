@@ -152,7 +152,7 @@
   /* ---------- Tracker ---------- */
   const tracker = (o) => {
     const st = stageOf(o);
-    return `<ol class="track" aria-label="Order progress">
+    return `<ol class="order-track" aria-label="Order progress">
       ${STEPS.map((s, i) => `<li class="${i < st ? "done" : i === st ? "now" : ""}"><span class="dot">${i <= st ? icon("check", 13) : ""}</span><b>${s}</b>${i === st ? `<em>${i === 3 ? fmtDate(o.slotDate, { weekday: "short", day: "numeric", month: "short" }) : "In progress"}</em>` : ""}</li>`).join("")}
     </ol>`;
   };
