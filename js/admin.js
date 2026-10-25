@@ -120,14 +120,14 @@
   /* ---------- Overview ---------- */
   const viewOverview = () => {
     const os = orders(); const live = os.filter((o) => !o.cancelled);
-    const revenue = live.reduce((s, o) => s + (o.total || 0), 0);
+    const revenue = live.reduce((s, o) => s + (o.total || 0) - (o.tip || 0), 0); // tips are passed to drivers
     const visible = products.filter((p) => !p.hidden);
     const out = visible.filter((p) => p.stock === 0), lowL = visible.filter((p) => stockState(p) === "low");
     const onSale = visible.filter((p) => p.wasPrice).length;
     const activeCodes = discounts.filter((d) => d.active).length;
     // last 7 days revenue
     const days = Array.from({ length: 7 }, (_, i) => { const d = new Date(); d.setHours(0, 0, 0, 0); d.setDate(d.getDate() - 6 + i); return d; });
-    const perDay = days.map((d) => live.filter((o) => { const t = new Date(o.placed); t.setHours(0, 0, 0, 0); return +t === +d; }).reduce((s, o) => s + o.total, 0));
+    const perDay = days.map((d) => live.filter((o) => { const t = new Date(o.placed); t.setHours(0, 0, 0, 0); return +t === +d; }).reduce((s, o) => s + o.total - (o.tip || 0), 0));
     const max = Math.max(...perDay, 1);
     const units = {};
     live.forEach((o) => Object.entries(o.items).forEach(([id, q]) => (units[id] = (units[id] || 0) + q)));
@@ -248,6 +248,7 @@
             <label class="field"><span>Stock quantity</span><input name="stock" type="number" min="0" value="${p.stock == null ? "" : p.stock}" placeholder="Blank = don't track"></label>
             <label class="field"><span>Emoji if no photo</span><input name="emoji" maxlength="4" value="${esc(p.emoji || "")}"></label>
           </div>
+          <label class="field"><span>Allergens <em>shown on the product page, e.g. "Contains: crustaceans (crayfish)"</em></span><input name="allergens" value="${esc(p.allergens || "")}" placeholder="Blank = ask shoppers to check the pack"></label>
           <label class="switch"><input type="checkbox" name="live" ${p.hidden ? "" : "checked"}><span class="slider"></span><span>Live in the shop</span></label>
           <p class="form-error" id="p-err" role="alert"></p>
         </div>
@@ -374,9 +375,10 @@
   const orderDetail = (o) => `
     <div class="od">
       <div><h3>Items</h3><table class="rcpt"><tbody>${Object.entries(o.items).map(([id, q]) => { const p = products.find((x) => x.id === id); return `<tr><td>${q} ×</td><td>${esc(p ? p.name : id)}</td><td>${p ? money(p.price * q) : ""}</td></tr>`; }).join("")}</tbody>
-        <tfoot><tr><td></td><td>Subtotal</td><td>${money(o.subtotal)}</td></tr>${o.discount ? `<tr><td></td><td>Discount (${esc(o.code)})</td><td>−${money(o.discount)}</td></tr>` : ""}<tr><td></td><td>Delivery</td><td>${o.fee ? money(o.fee) : "Free"}</td></tr><tr class="t"><td></td><td>Total</td><td>${money(o.total)}</td></tr></tfoot></table></div>
+        <tfoot><tr><td></td><td>Subtotal</td><td>${money(o.subtotal)}</td></tr>${o.discount ? `<tr><td></td><td>Discount (${esc(o.code)})</td><td>−${money(o.discount)}</td></tr>` : ""}<tr><td></td><td>Delivery</td><td>${o.fee ? money(o.fee) : "Free"}</td></tr>${o.tip ? `<tr><td></td><td>Driver tip (pass to driver)</td><td>${money(o.tip)}</td></tr>` : ""}<tr class="t"><td></td><td>Total</td><td>${money(o.total)}</td></tr></tfoot></table></div>
       <div><h3>Delivery</h3><p>${esc(o.addressLine || "")}</p><p>${new Date(o.slotDate).toLocaleDateString("en-GB", { weekday: "long", day: "numeric", month: "long" })}, ${esc(o.slotTime || "")}</p>
-        ${o.phone ? `<p>Phone: ${esc(o.phone)}</p>` : ""}${o.safePlace ? `<p>If out: ${esc(o.safePlace)}</p>` : ""}${o.notes ? `<p>Notes: ${esc(o.notes)}</p>` : ""}</div>
+        ${o.phone ? `<p>Phone: ${esc(o.phone)}</p>` : ""}${o.safePlace ? `<p>If out: ${esc(o.safePlace)}</p>` : ""}${o.notes ? `<p>Notes: ${esc(o.notes)}</p>` : ""}
+        ${o.subs ? `<h3>If out of stock</h3><p><b>${esc({ similar: "Swap for something similar", refund: "Refund the item", call: "Call the customer first" }[o.subs] || o.subs)}</b></p>${o.noSwap && o.noSwap.length ? `<p>Don't swap: ${o.noSwap.map((id) => { const p = products.find((x) => x.id === id); return esc(p ? p.name : id); }).join(", ")}</p>` : ""}` : ""}</div>
     </div>`;
   const viewOrders = () => {
     const os = orders();
@@ -396,6 +398,7 @@
             <label class="field"><span>Free delivery over (£)</span><input name="freeDeliveryOver" type="number" step="0.01" min="0" value="${S.freeDeliveryOver}"></label>
             <label class="field"><span>Delivery fee under that (£)</span><input name="deliveryFee" type="number" step="0.01" min="0" value="${S.deliveryFee}"></label>
           </div>
+          <label class="field"><span>Saver slot fee (£) <em>all-day delivery window, cheaper because orders can share a trip</em></span><input name="saverFee" type="number" step="0.01" min="0" value="${S.saverFee ?? 2.99}"></label>
           <div class="form-row two">
             <label class="field"><span>Order cut-off for next-day dispatch</span><input name="dispatchCutoff" value="${esc(S.dispatchCutoff)}" placeholder="11am"></label>
             <label class="field"><span>Low-stock warning at</span><input name="lowStockAt" type="number" min="1" value="${low()}"></label>
@@ -536,7 +539,7 @@
       if (isNaN(price) || price < 0) return (err.textContent = "Enter a price, like 4.99.");
       if (!isNaN(was) && was > 0 && was <= price) return (err.textContent = "The was price must be higher than the price, or leave it blank.");
       const rec = { name: v.name.trim(), category: v.category, tag: v.tag, price: r2(price), wasPrice: isNaN(was) || was <= 0 ? undefined : r2(was), from: !!v.from,
-        stock: v.stock === "" ? null : Math.max(0, parseInt(v.stock, 10) || 0), emoji: v.emoji.trim(), hidden: !v.live, image: editImage };
+        stock: v.stock === "" ? null : Math.max(0, parseInt(v.stock, 10) || 0), emoji: v.emoji.trim(), allergens: v.allergens.trim() || undefined, hidden: !v.live, image: editImage };
       if (v.pid) { const i = products.findIndex((p) => p.id === v.pid); products[i] = { ...products[i], ...rec }; }
       else products.unshift({ id: uniqueId(rec.name), ...rec });
       saveProducts(); closeDrawer(); toast(v.pid ? "Product saved" : "Product added"); rerender();
@@ -567,7 +570,7 @@
     } else if (f.id === "store-form") {
       e.preventDefault();
       const v = Object.fromEntries(new FormData(f).entries());
-      const patch = { freeDeliveryOver: r2(v.freeDeliveryOver || 0), deliveryFee: r2(v.deliveryFee || 0), dispatchCutoff: v.dispatchCutoff.trim() || "11am", lowStockAt: Math.max(1, parseInt(v.lowStockAt, 10) || 5), email: v.email.trim(), phone: v.phone.trim() };
+      const patch = { freeDeliveryOver: r2(v.freeDeliveryOver || 0), deliveryFee: r2(v.deliveryFee || 0), saverFee: r2(v.saverFee || 0), dispatchCutoff: v.dispatchCutoff.trim() || "11am", lowStockAt: Math.max(1, parseInt(v.lowStockAt, 10) || 5), email: v.email.trim(), phone: v.phone.trim() };
       Object.assign(S, patch); D.saveStore(patch); toast("Settings saved");
     }
   });

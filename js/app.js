@@ -120,6 +120,27 @@
 
   const stockState = (p) => (p.stock == null ? "in" : p.stock === 0 ? "out" : p.stock <= (S.lowStockAt || 5) ? "low" : "in");
   const stockLabel = (p) => ({ in: "In stock", out: "Out of stock", low: `Only ${p.stock} left` }[stockState(p)]);
+  // The next delivery day and how long is left to order for it (the dispatch cut-off).
+  const nextDelivery = (now = new Date()) => {
+    const deadline = new Date(now); deadline.setHours(parseInt(S.dispatchCutoff, 10) || 11, 0, 0, 0);
+    if (now >= deadline) deadline.setDate(deadline.getDate() + 1);
+    const day = new Date(deadline); day.setHours(0, 0, 0, 0); day.setDate(day.getDate() + 1);
+    return { day, deadline };
+  };
+  const deliveryLine = () => {
+    const { day, deadline } = nextDelivery(), m = Math.max(1, Math.round((deadline - Date.now()) / 6e4));
+    return `Delivery ${day.toLocaleDateString("en-GB", { weekday: "short", day: "numeric", month: "short" })} · order in ${m >= 60 ? `${Math.floor(m / 60)}h ${m % 60}m` : `${m}m`}`;
+  };
+  const tickDelivery = () => $$("[data-next-delivery]").forEach((el) => (el.textContent = deliveryLine()));
+
+  // Products that go with these: the other ingredients of recipes they're used in.
+  const goesWith = (ids, limit = 8) => {
+    const out = [];
+    D.recipes.forEach((r) => { if (r.items.some((i) => ids.includes(i))) r.items.forEach((i) => { if (!ids.includes(i) && !out.includes(i) && byId[i] && byId[i].stock !== 0) out.push(i); }); });
+    return out.slice(0, limit).map((i) => byId[i]);
+  };
+  const pairItem = (p) => `<div class="pd-more-item pair"><button data-open-product="${p.id}" title="${esc(p.name)}">${thumb(p)}<span>${esc(p.name)}</span></button><div class="pair-foot"><b>${money(p.price)}</b><span data-control="${p.id}">${cartControl(p.id)}</span></div></div>`;
+
   const cartControl = (id) => {
     const q = Cart.qty(id);
     if (byId[id] && byId[id].stock === 0 && !q) return `<span class="soldout">Sold out</span>`;
@@ -195,7 +216,7 @@
       </a>`;
 
     $("#site-header").outerHTML = `
-      <div class="announce"><span class="announce-long">${esc(S.tagline)} — <strong>${esc(S.strap)}</strong> · </span>Free UK delivery over ${money(S.freeDeliveryOver)}<span class="announce-short"> · Order by ${esc(S.dispatchCutoff)}</span></div>
+      <div class="announce"><span class="announce-long">${esc(S.tagline)} — <strong>${esc(S.strap)}</strong> · </span><span data-next-delivery>${deliveryLine()}</span> · Free <span class="announce-long">delivery </span>over ${money(S.freeDeliveryOver)}</div>
       <header class="header" id="header">
         <div class="container header-inner">
           <button class="icon-btn menu-btn" data-open-menu aria-label="Open menu">${icon("menu", 22)}</button>
@@ -308,13 +329,14 @@
             <span class="line-price">${money(p.price * q)}</span>
             <div class="stepper light"><button data-dec="${id}" aria-label="Decrease">${icon(q === 1 ? "trash" : "minus", 15)}</button><span>${q}</span><button data-inc="${id}" aria-label="Increase">${icon("plus", 15)}</button></div>
           </div>
-        </div>`; }).join("")}`;
+        </div>`; }).join("")}
+      ${(() => { const pairs = goesWith(lines.map(([id]) => id), 6); return pairs.length ? `<div class="dont-forget"><h4>Don't forget</h4><p>Often cooked with what's in your basket</p><div class="pd-more">${pairs.map(pairItem).join("")}</div></div>` : ""; })()}`;
     foot.innerHTML = `
       <div class="sum-row"><span>Subtotal</span><span>${money(sub)}</span></div>
       <div class="sum-row"><span>Delivery</span><span>${remaining > 0 ? money(S.deliveryFee) : "Free"}</span></div>
       <div class="sum-row total"><span>Total</span><span>${money(sub + (remaining > 0 ? S.deliveryFee : 0))}</span></div>
       <button class="btn btn-primary btn-block" data-checkout>Checkout ${icon("arrow", 18)}</button>
-      <p style="font-size:12.5px;color:var(--ink-3);text-align:center;margin-top:10px">${icon("clock", 13)} Order by ${esc(S.dispatchCutoff)} for next-day dispatch</p>`;
+      <p style="font-size:12.5px;color:var(--ink-3);text-align:center;margin-top:10px">${icon("clock", 13)} <span data-next-delivery>${deliveryLine()}</span></p>`;
   };
 
   /* ---------- Panels ---------- */
@@ -338,6 +360,8 @@
     const save = p.wasPrice ? Math.round((1 - p.price / p.wasPrice) * 100) : 0;
     const inBasket = Cart.qty(id);
     const more = D.products.filter((x) => x.category === p.category && x.id !== id && x.image).slice(0, 8);
+    const pairs = goesWith([id]);
+    const usedIn = D.recipes.filter((r) => r.items.includes(id));
     $("#pd-inner").innerHTML = `
       ${thumb(p, "pd-media", p.badge && p.badge !== "Sale" ? `<span class="card-badge ${p.badge === "New" ? "new" : "top"}">${p.badge === "Favourite" ? icon("sparkle", 12) + " " : ""}${esc(p.badge)}</span>` : "")}
       <div class="pd-info">
@@ -353,6 +377,7 @@
           <span>${icon("truck", 15)} Free UK delivery over ${money(S.freeDeliveryOver)}</span>
         </div>
         <p class="pd-desc">${esc(cat.desc)}${p.from ? " Available in more than one size — choose at checkout." : ""}</p>
+        <p class="pd-allergen">${icon("shield", 15)} <span>${p.allergens ? `<b>Allergens:</b> ${esc(p.allergens)}` : "<b>Allergens:</b> check the pack label, or ask us before you order if you have an allergy."}</span></p>
         <div class="pd-buy">
           <div class="stepper light pd-qty" role="group" aria-label="Quantity">
             <button data-pd-qty="-1" aria-label="Decrease">${icon("minus", 16)}</button>
@@ -362,6 +387,9 @@
           <button class="btn btn-primary pd-add" data-pd-add="${id}" ${p.stock === 0 ? "disabled" : ""}>${icon("bag", 18)} Add to basket · <span id="pd-total">${money(p.price * pdQty)}</span></button>
         </div>
         <p class="pd-note" id="pd-note">${inBasket ? `${icon("check", 14)} ${inBasket} already in your basket` : ""}</p>
+        ${pairs.length ? `<h4>Goes well with</h4>
+        <p class="pd-recipes">Used in ${usedIn.map((r) => `<a href="shop.html?recipe=${r.id}">${esc(r.name)}</a>`).join(", ")}</p>
+        <div class="pd-more">${pairs.map(pairItem).join("")}</div>` : ""}
         ${more.length ? `<h4>More from ${esc(cat.name)}</h4>
         <div class="pd-more">${more.map((m) => `<button class="pd-more-item" data-open-product="${m.id}" title="${esc(m.name)}">${thumb(m)}<span>${esc(m.name)}</span><b>${money(m.price)}</b></button>`).join("")}</div>` : ""}
       </div>`;
@@ -460,5 +488,6 @@
   Cart.onChange(() => { refreshControls(); renderCart(); });
   document.addEventListener("DOMContentLoaded", () => { refreshControls(); renderCart(); });
 
-  window.FL = { D, Cart, byId, categoryById, catIcon, openProduct, productCard, thumb, icon, money, esc, initials, store, search, bindLiveSearch, refreshControls, toast, openPanel, closePanels, $, $$ };
+  setInterval(tickDelivery, 30e3);
+  window.FL = { D, Cart, byId, nextDelivery, categoryById, catIcon, openProduct, productCard, thumb, icon, money, esc, initials, store, search, bindLiveSearch, refreshControls, toast, openPanel, closePanels, $, $$ };
 })();

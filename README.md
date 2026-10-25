@@ -24,22 +24,29 @@ It's a plain static site with no build step. Open `index.html` in a browser, or 
 - **`account.html` (Account)**: reached from the person icon in the header, the Account tab on phones, and the basket's Checkout button.
   - Create account / sign in.
   - Overview: greeting, stats, live order tracker, basket preview, default address and "Buy again".
-  - Basket & checkout: edit quantities, pick a saved address and a delivery slot (next 5 days, morning / afternoon / evening, respecting the 11am cut-off), then place the order.
+  - Basket & checkout:
+    - Edit quantities and pick a saved address.
+    - Pick a delivery slot: the next 5 days, morning / afternoon / evening, respecting the 11am cut-off. There's also a cheaper all-day **Saver** slot, which lets drivers group deliveries.
+    - Choose what happens if something is out of stock: swap for something similar, refund, or call me first. Any item can be marked "Don't swap this one".
+    - Optionally tip the driver, then place the order.
   - My orders: status, tracking timeline, receipt, one-tap "Buy again" and cancel (while just placed).
   - Favourites, an address book (add, edit, default, remove) and payment methods (placeholder until card payments are connected).
   - Settings: profile, safe place and driver notes, notification switches, sign out.
   - **Preview only:** accounts, orders and addresses are saved in the visitor's browser. Order progress is estimated from the time since ordering. Connect a real login, payment and order system before launch.
 - **`admin.html` (Admin dashboard)**: not linked from the shop; open `/admin.html` directly. Protected by a passcode set on first visit (preview lock only).
   - Overview: revenue, average order, live products, stock alerts, 7-day sales chart, recent orders, top sellers.
-  - Products: search and filter; edit price, sale ("was") price and stock right in the table; show/hide; add or edit products with photo upload; bulk % off, end sale, set stock, hide/show; import a CSV (this dashboard's export or a Shopify product export) with a review step; export CSV.
+  - Products: search and filter; edit price, sale ("was") price and stock right in the table; show/hide; add or edit products with photo upload and allergen info; bulk % off, end sale, set stock, hide/show; import a CSV (this dashboard's export or a Shopify product export) with a review step; export CSV.
   - Inventory: out of stock / low / in stock / not tracked, quick adjust and restock. Stock drops automatically when orders are placed; the shop shows "Only X left" and "Sold out" and won't let customers add more than is in stock.
   - Discounts: discount codes (percentage, fixed amount, free delivery; minimum spend; end date; usage count) that customers enter at checkout, plus category-wide sales.
-  - Orders: fulfil orders and change their status; customers see the new status in their account.
-  - Settings: free-delivery threshold, delivery fee, cut-off time, low-stock level, contact details, backup/restore and reset.
+  - Orders: fulfil orders and change their status; customers see the new status in their account. Each order shows the customer's out-of-stock choice, any "don't swap" items and the driver tip. Tips are left out of revenue because they're passed to drivers.
+  - Settings: free-delivery threshold, delivery fee, Saver slot fee, cut-off time, low-stock level, contact details, backup/restore and reset.
+- **Top bar:** shows the next delivery day and a live countdown to the order cut-off.
+- **Product view extras:** a "Goes well with" row (other ingredients from the recipes the product is used in) with quick add, and allergen information (set per product in Admin, otherwise a "check the pack" note).
 - **Basket drawer** (on every page):
   - Quantity steppers
   - Free-delivery progress bar
   - Subtotal and total (delivery free over £60)
+  - A "Don't forget" row suggests ingredients often cooked with what's in the basket.
   - The basket is saved in the visitor's browser.
 - **Micro-interactions** (`js/motion.js`):
   - Products fly into the basket in an arc; the basket catches them, and the count pops with a "+1".

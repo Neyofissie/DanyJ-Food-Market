@@ -40,7 +40,7 @@
   };
   const orderTotal = (o) => Object.entries(o.items).reduce((s, [id, q]) => s + (byId[id] ? byId[id].price * q : 0), 0);
   const orderCount = (o) => Object.values(o.items).reduce((a, b) => a + b, 0);
-  const deliveryFee = (sub, freeShip) => (freeShip || sub >= S.freeDeliveryOver ? 0 : S.deliveryFee);
+  const deliveryFee = (sub, freeShip, time) => (freeShip || sub >= S.freeDeliveryOver ? 0 : time === SAVER ? (S.saverFee ?? 2.99) : S.deliveryFee);
   // Discount codes created in Admin → Discounts
   const findCode = (code) => (D.discounts || []).find((d) => d.active && d.code.toUpperCase() === String(code || "").trim().toUpperCase() && (!d.expires || new Date(d.expires + "T23:59:59") >= new Date()));
   const discountFor = (code, sub) => {
@@ -60,6 +60,11 @@
     return Array.from({ length: 5 }, (_, i) => { const d = new Date(start); d.setDate(d.getDate() + i); return d; });
   };
   const SLOT_TIMES = [["am", "8am – 12pm"], ["pm", "12pm – 5pm"], ["eve", "5pm – 9pm"]];
+  // Saver slot: any time in the day, so drivers can group deliveries; it costs less.
+  const SAVER = "Saver · 8am – 9pm";
+  // What to do when a store has run out of something.
+  const SUBS = { similar: ["Swap for something similar", "The store picks the closest match: same kind, similar size."], refund: ["Refund me", "Leave it out and refund it. You only pay for what's packed."], call: ["Call me first", "The store rings you to agree a swap."] };
+  const TIPS = [0, 1, 2, 3];
 
   /* ---------- Sign in / create account ---------- */
   const renderSignIn = (mode = "create") => {
@@ -230,7 +235,8 @@
     </div>`;
 
   /* ---------- Basket & checkout ---------- */
-  let chosen = { addr: null, day: null, time: null, code: "" };
+  let chosen = { addr: null, day: null, time: null, code: "", subs: getPrefs().subs || "similar", tip: 0 };
+  const getNoSwap = () => store.get("noSwap", []);
   const viewBasket = () => {
     const cart = store.get("cart", {});
     const lines = Object.entries(cart).filter(([id]) => byId[id]);
@@ -244,8 +250,10 @@
     if (!chosen.time) chosen.time = SLOT_TIMES[0][1];
     const sub = Cart.subtotal();
     const disc = discountFor(chosen.code, sub);
-    const fee = deliveryFee(sub, disc.freeShip);
-    const total = Math.max(0, sub - disc.amount) + fee;
+    const fee = deliveryFee(sub, disc.freeShip, chosen.time);
+    const total = Math.max(0, sub - disc.amount) + fee + chosen.tip;
+    const freeNow = disc.freeShip || sub >= S.freeDeliveryOver;
+    const noSwap = getNoSwap();
     const codeMsg = !chosen.code ? "" : disc.d ? `${icon("check", 14)} ${esc(disc.d.code)} applied${disc.freeShip ? ": free delivery" : ""}`
       : findCode(chosen.code) ? `Spend ${money(findCode(chosen.code).minSpend)} or more to use ${esc(chosen.code.toUpperCase())}.` : `${esc(chosen.code.toUpperCase())} isn't a valid code.`;
     return head("Basket & checkout", `${Cart.count()} ${Cart.count() === 1 ? "item" : "items"} · order by ${esc(S.dispatchCutoff)} for next-day dispatch`) + `
@@ -256,7 +264,8 @@
             <ul class="bl">${lines.map(([id, q]) => { const p = byId[id]; return `
               <li class="bl-row">
                 <button class="bl-media" data-open-product="${id}" aria-label="View ${esc(p.name)}">${thumb(p)}</button>
-                <div class="bl-info"><b>${esc(p.name)}</b><span>${money(p.price)} each${p.wasPrice ? ` · <s>${money(p.wasPrice)}</s>` : ""}</span></div>
+                <div class="bl-info"><b>${esc(p.name)}</b><span>${money(p.price)} each${p.wasPrice ? ` · <s>${money(p.wasPrice)}</s>` : ""}</span>
+                  ${chosen.subs === "similar" ? `<label class="bl-swap"><input type="checkbox" data-noswap="${id}" ${noSwap.includes(id) ? "checked" : ""}> Don't swap this one</label>` : ""}</div>
                 <div class="stepper light"><button data-dec="${id}" aria-label="Decrease">${icon(q === 1 ? "trash" : "minus", 15)}</button><span>${q}</span><button data-inc="${id}" aria-label="Increase">${icon("plus", 15)}</button></div>
                 <b class="bl-price">${money(p.price * q)}</b>
               </li>`; }).join("")}</ul>
@@ -270,7 +279,14 @@
           <article class="acc-card">
             <div class="acc-card-head"><h2><span class="stepn">3</span> Delivery slot</h2></div>
             <div class="slot-days">${days.map((d) => `<button class="slot-day ${d.toISOString() === chosen.day ? "active" : ""}" data-day="${d.toISOString()}"><span>${d.toLocaleDateString("en-GB", { weekday: "short" })}</span><b>${d.getDate()}</b><span>${d.toLocaleDateString("en-GB", { month: "short" })}</span></button>`).join("")}</div>
-            <div class="slot-times">${SLOT_TIMES.map(([k, t]) => `<button class="slot-time ${t === chosen.time ? "active" : ""}" data-time="${t}">${icon("clock", 16)} ${t}</button>`).join("")}</div>
+            <div class="slot-times">${SLOT_TIMES.map(([k, t]) => `<button class="slot-time ${t === chosen.time ? "active" : ""}" data-time="${t}">${icon("clock", 16)} ${t}<em>${freeNow ? "Free" : money(S.deliveryFee)}</em></button>`).join("")}</div>
+            <button class="slot-time saver ${chosen.time === SAVER ? "active" : ""}" data-time="${SAVER}">${icon("truck", 16)} <span><b>Saver: any time 8am – 9pm</b><small>We fit you into a driver's route, so it costs less.</small></span><em>${freeNow ? "Free" : money(S.saverFee ?? 2.99)}</em></button>
+          </article>
+          <article class="acc-card">
+            <div class="acc-card-head"><h2><span class="stepn">4</span> If something's out of stock</h2></div>
+            <p class="card-sub">We buy from African stores across Scotland, and now and then they run out.</p>
+            <div class="choice-grid">${Object.entries(SUBS).map(([k, [t, d]]) => `
+              <label class="choice"><input type="radio" name="subs" value="${k}" ${chosen.subs === k ? "checked" : ""}><b>${t}</b><span class="choice-sub">${k === "call" ? `The store rings you${(getUser() || {}).phone ? ` on ${esc(getUser().phone)}` : ""} to agree a swap.` : d}</span></label>`).join("")}</div>
           </article>
         </div>
         <aside class="acc-card checkout-sum">
@@ -278,12 +294,15 @@
           <div class="ship-meter">${sub < S.freeDeliveryOver ? `Add <b>${money(S.freeDeliveryOver - sub)}</b> for free delivery` : `🎉 You've unlocked <b>free delivery</b>`}<div class="bar"><i style="width:${Math.min(100, (sub / S.freeDeliveryOver) * 100)}%"></i></div></div>
           <div class="sum-row"><span>Subtotal</span><span>${money(sub)}</span></div>
           ${disc.amount ? `<div class="sum-row disc"><span>Discount (${esc(disc.d.code)})</span><span>−${money(disc.amount)}</span></div>` : ""}
-          <div class="sum-row"><span>Delivery</span><span>${fee ? money(fee) : "Free"}</span></div>
+          <div class="sum-row"><span>Delivery${chosen.time === SAVER && fee ? " (Saver)" : ""}</span><span>${fee ? money(fee) : "Free"}</span></div>
+          ${chosen.tip ? `<div class="sum-row"><span>Driver tip</span><span>${money(chosen.tip)}</span></div>` : ""}
+          <div class="tip"><span>Tip your driver <em>100% goes to them</em></span><div class="tip-chips">${TIPS.map((v) => `<button type="button" class="${chosen.tip === v ? "active" : ""}" data-tip="${v}">${v ? money(v) : "Not now"}</button>`).join("")}</div></div>
           <form class="code-form" data-code-form><label class="sr-only" for="promo">Discount code</label><input id="promo" placeholder="Discount code" value="${esc(chosen.code)}" autocomplete="off"><button class="btn btn-ghost btn-sm" type="submit">${chosen.code && disc.d ? "Change" : "Apply"}</button></form>
           ${codeMsg ? `<p class="code-msg ${disc.d ? "ok" : ""}">${codeMsg}</p>` : ""}
           <div class="sum-row total"><span>Total</span><span>${money(total)}</span></div>
           <p class="sum-slot">${icon("truck", 16)} ${fmtDate(chosen.day, { weekday: "long", day: "numeric", month: "long" })}, ${esc(chosen.time)}</p>
           <button class="btn btn-primary btn-block" data-place ${addrs.length ? "" : "disabled"}>Place order · ${money(total)}</button>
+          <p class="form-hint">${icon("check", 14)} You only pay for what's packed. Out of stock: ${esc(SUBS[chosen.subs][0].toLowerCase())}.</p>
           <p class="form-hint">${icon("shield", 14)} Preview: no payment is taken. Card payment is added when checkout is connected.</p>
         </aside>
       </div>`;
@@ -316,7 +335,8 @@
         <div class="order-more" id="track-${o.id}" hidden>${st < 0 ? `<p class="empty-note">This order was cancelled.</p>` : tracker(o)}</div>
         <div class="order-more" id="rcpt-${o.id}" hidden>
           <table class="rcpt"><tbody>${Object.entries(o.items).filter(([id]) => byId[id]).map(([id, q]) => `<tr><td>${q} ×</td><td>${esc(byId[id].name)}</td><td>${money(byId[id].price * q)}</td></tr>`).join("")}</tbody>
-          <tfoot><tr><td></td><td>Subtotal</td><td>${money(o.subtotal)}</td></tr>${o.discount ? `<tr><td></td><td>Discount (${esc(o.code)})</td><td>−${money(o.discount)}</td></tr>` : ""}<tr><td></td><td>Delivery</td><td>${o.fee ? money(o.fee) : "Free"}</td></tr><tr class="t"><td></td><td>Total</td><td>${money(o.total)}</td></tr></tfoot></table>
+          <tfoot><tr><td></td><td>Subtotal</td><td>${money(o.subtotal)}</td></tr>${o.discount ? `<tr><td></td><td>Discount (${esc(o.code)})</td><td>−${money(o.discount)}</td></tr>` : ""}<tr><td></td><td>Delivery</td><td>${o.fee ? money(o.fee) : "Free"}</td></tr>${o.tip ? `<tr><td></td><td>Driver tip</td><td>${money(o.tip)}</td></tr>` : ""}<tr class="t"><td></td><td>Total</td><td>${money(o.total)}</td></tr></tfoot></table>
+          ${o.subs ? `<p class="rcpt-note">${icon("repeat", 14)} If out of stock: ${esc(SUBS[o.subs][0].toLowerCase())}${o.noSwap && o.noSwap.length ? ` (except ${o.noSwap.filter((id) => byId[id]).map((id) => esc(byId[id].name)).join(", ")})` : ""}</p>` : ""}
         </div>
       </article>`; }).join("")}</div>`;
   };
@@ -471,17 +491,19 @@
     } else if (form.id === "prefs-form") {
       e.preventDefault();
       const f = new FormData(form);
-      save("prefs", { safePlace: f.get("safePlace"), notes: f.get("notes"), sms: f.get("sms") === "on", offers: f.get("offers") === "on" });
+      save("prefs", { ...getPrefs(), safePlace: f.get("safePlace"), notes: f.get("notes"), sms: f.get("sms") === "on", offers: f.get("offers") === "on" });
       toast("Preferences saved");
     }
   });
 
   root.addEventListener("change", (e) => {
     if (e.target.name === "addr") { chosen.addr = e.target.value; }
+    else if (e.target.name === "subs") { chosen.subs = e.target.value; save("prefs", { ...getPrefs(), subs: chosen.subs }); route(); }
+    else if (e.target.dataset.noswap) { const id = e.target.dataset.noswap, list = getNoSwap().filter((x) => x !== id); save("noSwap", e.target.checked ? [...list, id] : list); }
   });
 
   root.addEventListener("click", (e) => {
-    const t = e.target.closest("[data-signout],[data-wipe],[data-day],[data-time],[data-place],[data-again],[data-toggle],[data-cancel],[data-addr-new],[data-addr-edit],[data-addr-del],[data-addr-default],[data-addr-cancel]");
+    const t = e.target.closest("[data-signout],[data-wipe],[data-day],[data-time],[data-tip],[data-place],[data-again],[data-toggle],[data-cancel],[data-addr-new],[data-addr-edit],[data-addr-del],[data-addr-default],[data-addr-cancel]");
     if (!t) return;
     const d = t.dataset;
     if ("signout" in d) { save("signedIn", false); toast("Signed out"); location.hash = ""; route(); }
@@ -492,6 +514,7 @@
     }
     else if (d.day) { chosen.day = d.day; route(); }
     else if (d.time) { chosen.time = d.time; route(); }
+    else if (d.tip) { chosen.tip = Number(d.tip); route(); }
     else if ("place" in d) placeOrder(t);
     else if (d.again) {
       const o = getOrders().find((x) => x.id === d.again); if (!o) return;
@@ -525,14 +548,16 @@
     if (!Object.keys(items).length) return;
     const sub = Object.entries(items).reduce((s, [id, q]) => s + byId[id].price * q, 0);
     const disc = discountFor(chosen.code, sub);
-    const fee = deliveryFee(sub, disc.freeShip);
+    const fee = deliveryFee(sub, disc.freeShip, chosen.time);
     const u = getUser() || {};
-    const order = { id: String(Date.now()).slice(-6), placed: Date.now(), items, subtotal: sub, discount: disc.amount, code: disc.d ? disc.d.code : "", fee, total: Math.max(0, sub - disc.amount) + fee,
+    const noSwap = chosen.subs === "similar" ? getNoSwap().filter((id) => items[id]) : [];
+    const order = { id: String(Date.now()).slice(-6), placed: Date.now(), items, subtotal: sub, discount: disc.amount, code: disc.d ? disc.d.code : "", fee, tip: chosen.tip, subs: chosen.subs, noSwap, total: Math.max(0, sub - disc.amount) + fee + chosen.tip,
       customer: `${u.first || ""} ${u.last || ""}`.trim(), email: u.email || "", phone: addr.phone || u.phone || "", safePlace: getPrefs().safePlace, notes: getPrefs().notes, slotDate: chosen.day, slotTime: chosen.time, addressLine: `${addr.line1}, ${addr.postcode}` };
     save("orders", [order, ...getOrders()]);
     Object.entries(items).forEach(([id, q]) => D.adjustStock(id, -q));
     if (disc.d) D.saveDiscounts((D.discounts || []).map((d) => (d.code === disc.d.code ? { ...d, uses: (d.uses || 0) + 1 } : d)));
-    chosen.code = "";
+    chosen.code = ""; chosen.tip = 0;
+    save("noSwap", []);
     btn.disabled = true;
     Object.keys(items).forEach((id) => Cart.set(id, 0));
     if (window.FL.motion) window.FL.motion.confetti(btn);

@@ -27,6 +27,7 @@
     freeDeliveryOver: 60,
     dispatchCutoff: "11am",
     deliveryFee: 4.99, // charged under the free-delivery threshold (placeholder: set the real fee in Admin → Settings)
+    saverFee: 2.99, // cheaper fee for the all-day "Saver" slot, which lets drivers group deliveries into one trip
     lowStockAt: 5,
     email: "", // add your contact email to show it in the footer
     phone: "", // add your phone number to show it in the footer
